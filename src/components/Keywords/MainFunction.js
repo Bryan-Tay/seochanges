@@ -125,7 +125,7 @@ const MainFunction = ({ url, keywords, location }) => {
                     ]);
                     let tempKW = svrkResponse.data.keywords
                         .filter((elem) => elem.seo)
-                        .slice(0, 100);
+                        .slice(0, 10);// lets try 10 instead of 100
 
                     setRelatedKeywords((relatedKeywords) => [
                         ...relatedKeywords,

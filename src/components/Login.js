@@ -23,7 +23,7 @@ const Login = () => {
             await setUser(username);
             await sessionStorage.setItem("user", username);
         } else {
-            setStatus("Invalid Username or Password");
+            setStatus("Invalid Username or Password ");
         }
     };
 

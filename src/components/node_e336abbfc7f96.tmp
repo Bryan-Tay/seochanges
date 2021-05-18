@@ -1,0 +1,22 @@
+const Login = () => {
+    const { user, setUser } = useContext(UserContext);
+    const [status, setStatus] = useState();
+    const [username, setUsername] = useState();
+    const [password, setPassword] = useState();
+    const handleSubmit = async (event) => {
+        setStatus("");
+        event.preventDefault();
+        if (
+            (username.toLowerCase() === "mediaone" ||
+                username.toLowerCase() === "tom" ||
+                username.toLowerCase() === "sales" ||
+                username.toLowerCase() === "seo") &&
+            password === PASSWORD
+        ) {
+            setStatus("");
+            await setUser(username);
+            await sessionStorage.setItem("user", username);
+        } else {
+            setStatus("Invalid Username or Password12");
+        }
+    };
