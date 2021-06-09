@@ -20,20 +20,3 @@ const KeywordTimelineAnalysis = () => {
 };
 
 export default KeywordTimelineAnalysis;
-
-// {submitted ? ( // Renders results after submission.
-//   <MainFunction
-//     url={URL}
-//     keywords={formattedKeywords}
-//     location={chosenLocation}
-//     setFormattedKeywords={setFormattedKeywords}
-//   />
-// ) : (
-//   <UserInput
-//     setSubmitted={setSubmitted}
-//     setChosenLocation={setChosenLocation}
-//     setFormattedKeywords={setFormattedKeywords}
-//     URL={URL}
-//     setURL={setURL}
-//   />
-// )}

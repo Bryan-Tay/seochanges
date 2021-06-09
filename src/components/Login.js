@@ -7,8 +7,8 @@ let PASSWORD = process.env.REACT_APP_PASSWORD;
 const Login = () => {
     const { user, setUser } = useContext(UserContext);
     const [status, setStatus] = useState();
-    const [username, setUsername] = useState();
-    const [password, setPassword] = useState();
+    const [username, setUsername] = useState(); // TODO: remove
+    const [password, setPassword] = useState(); // TODO: remove
     const handleSubmit = async (event) => {
         setStatus("");
         event.preventDefault();

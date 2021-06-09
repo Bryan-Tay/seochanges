@@ -13,6 +13,7 @@
         "dotenv": "^8.2.0",
         "express-favicon": "^2.0.1",
         "gh-pages": "^2.2.0",
+        "jquery": "^3.6.0",
         "lodash": "^4.17.21",
         "material-ui-icons": "^1.0.0-beta.36",
         "moment": "^2.26.0",

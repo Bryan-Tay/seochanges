@@ -104,11 +104,11 @@ const MainFunction = () => {
     }));
   };
 
-  // Store fulldata in localStorage on every change
+  // Store fulldata in sessionStorage on every change
   useEffect(() => {
     for (let kw of Object.keys(fulldata)) {
       const kwData = fulldata[kw];
-      localStorage.setItem(kw, JSON.stringify(kwData));
+      sessionStorage.setItem(kw, JSON.stringify(kwData));
       if (
         kwData.fs &&
         kwData.df &&
@@ -134,7 +134,7 @@ const MainFunction = () => {
 
     setFulldata({});
     for (let kw of keywords) {
-      const cachedKw = JSON.parse(localStorage.getItem(kw));
+      const cachedKw = JSON.parse(sessionStorage.getItem(kw));
 
       if (
         _.get(cachedKw, 'fs') &&
@@ -275,8 +275,6 @@ const MainFunction = () => {
       }
     }
   }, [keywords]);
-
-  // if (!data) return null;
 
   return (
     <div style={{ marginBottom: '20px' }}>
