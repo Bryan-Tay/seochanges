@@ -13,11 +13,13 @@
         "dotenv": "^8.2.0",
         "express-favicon": "^2.0.1",
         "gh-pages": "^2.2.0",
+        "lodash": "^4.17.21",
         "material-ui-icons": "^1.0.0-beta.36",
         "moment": "^2.26.0",
         "react": "^16.13.1",
         "react-country-flag": "^2.2.0",
         "react-dom": "^16.13.1",
+        "react-hook-form": "^7.8.1",
         "react-router-dom": "^5.2.0",
         "react-scripts": "3.4.1",
         "react-spinners": "^0.8.3",
@@ -29,7 +31,8 @@
         "start": "node server.js",
         "build": "react-scripts build",
         "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "eject": "react-scripts eject",
+        "dev": "react-scripts start"
     },
     "eslintConfig": {
         "extends": "react-app"
@@ -48,7 +51,6 @@
     },
     "description": "",
     "main": "index.js",
-    "devDependencies": {},
     "repository": {
         "type": "git",
         "url": "git+https://github.com/mediaoneseo/mediaoneapp.git"
