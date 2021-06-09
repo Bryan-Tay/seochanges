@@ -4,12 +4,7 @@ const KeywordsContext = createContext(null);
 export const useKeywordsContext = () => useContext(KeywordsContext);
 
 const KeywordsProvider = ({ children }) => {
-  const [data, setData] = useState({
-    url: 'https://jlccontadores.com.mx/',
-    location: 'UnitedStates',
-    locationData: { mangools: 2840, sem: 'us' },
-    keywords: ['contabilidad', 'contadores', 'contador', 'jlc contadores'],
-  });
+  const [data, setData] = useState(null);
 
   const [errors, setErrors] = useState({});
   const [fulldata, setFulldata] = useState({});
