@@ -21,6 +21,8 @@ class KwApi {
     this.client.interceptors.response.use(
       (response) => response.data,
       (error) => {
+        console.log(error);
+        console.log(JSON.stringify(error));
         return new Error(
           error.isAxiosError ? error.response.data.error.message : error.message
         );

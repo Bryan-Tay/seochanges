@@ -135,6 +135,7 @@ const MainFunction = () => {
     if (isComplete) {
       const creditsApi = new CreditsApi();
       creditsApi.getCredits().then((res) => setCredits(res.credits));
+      setLoadingMessage('');
     }
   }, [keywords, fulldata]);
 
