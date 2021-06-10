@@ -1,8 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import countries from '../catalogs/countries';
 
 const KeywordsContext = createContext(null);
 export const useKeywordsContext = () => useContext(KeywordsContext);
+
+// const testData = {
+//   url: 'https://jlccontadores.com.mx',
+//   location: 'UnitedStates',
+//   locationData: { mangools: 2840, sem: 'us' },
+//   keywords: ['contabilidad general', 'servicios contables', 'jlc contadores'],
+// };
 
 const KeywordsProvider = ({ children }) => {
   const [data, setData] = useState(null);
@@ -10,7 +16,7 @@ const KeywordsProvider = ({ children }) => {
   const [errors, setErrors] = useState({});
   const [fulldata, setFulldata] = useState({});
 
-  const [credits, setCredits] = useState(0);
+  const [credits, setCredits] = useState({});
   const [loadingMessage, setLoadingMessage] = useState('');
 
   const [keywords, setKeywords] = useState(null);
@@ -20,6 +26,7 @@ const KeywordsProvider = ({ children }) => {
     if (data) {
       setKeywords(data.keywords || []);
     } else {
+      setFulldata({});
       setKeywords([]);
     }
   }, [data]);

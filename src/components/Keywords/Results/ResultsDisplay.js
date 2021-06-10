@@ -108,7 +108,11 @@ const ResultsDisplay = () => {
                       ? '✔'
                       : ''}
                   </TableCell>
-                  <TableCell>* TODO *</TableCell>
+                  <TableCell>
+                    {kwdata.pageData && kwdata.pageData.url
+                      ? kwdata.pageData.url
+                      : ''}
+                  </TableCell>
                   <TableCell style={{ maxWidth: '40px' }}>
                     <IconButton
                       aria-label='delete'

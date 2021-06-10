@@ -8,8 +8,7 @@ class KwApi {
 
   constructor(url, location) {
     const kwapi = axios;
-    kwapi.defaults.baseURL =
-      'https://mbg.com.sg:8081/https://api.mangools.com/v2/kwfinder';
+    kwapi.defaults.baseURL = process.env.REACT_APP_KWAPI;
     kwapi.defaults.headers = {
       'x-access-token': process.env.REACT_APP_KEY,
       'Access-Control-Allow-Origin': '*',

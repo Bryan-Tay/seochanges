@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { ClipLoader } from 'react-spinners';
 import { useKeywordsContext } from '../../context/KeywordsContext';
+import CreditsApi from '../../services/credits';
 import KwApi from '../../services/keyword';
 import CustomPrompt from './Misc/CustomPrompt';
 import KeywordPageOneDisplay from './Results/KeywordPageOneDisplay';
@@ -15,6 +16,7 @@ const MainFunction = () => {
     data,
     setData,
     credits,
+    setCredits,
     keywords,
     keyword,
     errors,
@@ -106,26 +108,35 @@ const MainFunction = () => {
 
   // Store fulldata in sessionStorage on every change
   useEffect(() => {
-    for (let kw of Object.keys(fulldata)) {
-      const kwData = fulldata[kw];
-      sessionStorage.setItem(kw, JSON.stringify(kwData));
+    if (!keywords || !fulldata) return;
+
+    let status = new Array(keywords.length).fill(false);
+    for (let kw of keywords) {
+      const kwData = fulldata[kw] || {};
       if (
-        kwData.fs &&
-        kwData.df &&
-        kwData.items &&
-        kwData.volume &&
-        kwData.ranking &&
-        kwData.related &&
-        kwData.pageData &&
-        kwData.pageData.url &&
-        kwData.pageData.q2 &&
-        kwData.pageData.q3 &&
-        kwData.pageData.q4
+        kwData.fs !== undefined &&
+        kwData.df !== undefined &&
+        kwData.items !== undefined &&
+        kwData.volume !== undefined &&
+        kwData.ranking !== undefined &&
+        kwData.related !== undefined &&
+        kwData.pageData !== undefined &&
+        kwData.pageData.url !== undefined &&
+        kwData.pageData.q2 !== undefined &&
+        kwData.pageData.q3 !== undefined &&
+        kwData.pageData.q4 !== undefined
       ) {
-        setLoadingMessage('');
+        sessionStorage.setItem(kw, JSON.stringify(kwData));
+        status[keywords.indexOf(kw)] = true;
       }
     }
-  }, [fulldata]);
+
+    const isComplete = status.filter((s) => s).length === status.length;
+    if (isComplete) {
+      const creditsApi = new CreditsApi();
+      creditsApi.getCredits().then((res) => setCredits(res.credits));
+    }
+  }, [keywords, fulldata]);
 
   useEffect(() => {
     if (!url || !locationData || !keywords) return;
@@ -137,17 +148,17 @@ const MainFunction = () => {
       const cachedKw = JSON.parse(sessionStorage.getItem(kw));
 
       if (
-        _.get(cachedKw, 'fs') &&
-        _.get(cachedKw, 'df') &&
-        _.get(cachedKw, 'items') &&
-        _.get(cachedKw, 'volume') &&
-        _.get(cachedKw, 'ranking') &&
-        _.get(cachedKw, 'related') &&
-        _.get(cachedKw, 'pageData') &&
-        _.get(cachedKw, 'pageData.url') &&
-        _.get(cachedKw, 'pageData.q2') &&
-        _.get(cachedKw, 'pageData.q3') &&
-        _.get(cachedKw, 'pageData.q4')
+        _.get(cachedKw, 'fs') !== undefined &&
+        _.get(cachedKw, 'df') !== undefined &&
+        _.get(cachedKw, 'items') !== undefined &&
+        _.get(cachedKw, 'volume') !== undefined &&
+        _.get(cachedKw, 'ranking') !== undefined &&
+        _.get(cachedKw, 'related') !== undefined &&
+        _.get(cachedKw, 'pageData') !== undefined &&
+        _.get(cachedKw, 'pageData.url') !== undefined &&
+        _.get(cachedKw, 'pageData.q2') !== undefined &&
+        _.get(cachedKw, 'pageData.q3') !== undefined &&
+        _.get(cachedKw, 'pageData.q4') !== undefined
       ) {
         // Get data from cache
         setKeywordAttribute(kw, 'fs', cachedKw.fs);
@@ -179,7 +190,8 @@ const MainFunction = () => {
         kwapi
           .getRelevantPage(kw)
           .then((data) => {
-            const pageUrl = data[0].items[0].url;
+            let pageUrl = data[0].items[0].url;
+            pageUrl = pageUrl.slice(pageUrl.length - 1);
             setKeywordAttribute(kw, 'pageData.url', pageUrl);
             const fs = getFS(
               _.get(data[0], 'items[0].m.moz.v.pda', 0),
@@ -290,7 +302,12 @@ const MainFunction = () => {
           <h2>
             Checking {url} in {locationData.sem.toUpperCase()}
           </h2>
-          <p>Credits used for this search: {credits}</p>
+          <p>
+            Credits remmaining:{' '}
+            {credits && credits.kw ? credits.kw.remaining : 0} /{' '}
+            {credits && credits.kw ? credits.kw.total : 0}
+          </p>
+          <pre>{JSON.stringify(credits, null, 2)}</pre>
           {!!loadingMessage && (
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <ClipLoader size={10} color={'#123abc'} />
