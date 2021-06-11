@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -68,29 +69,25 @@ const KeywordPageOneDisplay = () => {
                     </a>
                   </TableCell>
                   <TableCell>
-                    {item.m.moz.v.pda ? item.m.moz.v.pda : ''}
+                    {String(_.get(item, 'm.moz.v.pda') || 0)}
                   </TableCell>
                   <TableCell>
-                    {item.m.moz.v.upa ? item.m.moz.v.upa : ''}
+                    {String(_.get(item, 'm.moz.v.up') || 0)}
                   </TableCell>
                   <TableCell>
-                    {item.m.majestic.v.TrustFlow
-                      ? item.m.majestic.v.TrustFlow
-                      : ''}
+                    {String(_.get(item, 'm.majestic.v.TrustFlow') || 0)}
                   </TableCell>
                   <TableCell>
-                    {item.m.majestic.v.CitationFlow
-                      ? item.m.majestic.v.CitationFlow
-                      : ''}
+                    {String(_.get(item, 'm.majestic.v.CitationFlow') || 0)}
                   </TableCell>
                   <TableCell>
-                    {item.m.majestic.v.ExtBackLinks
-                      ? item.m.majestic.v.ExtBackLinks
-                      : ''}
+                    {String(_.get(item, 'm.majestic.v.ExtBackLinks') || 0)}
                   </TableCell>
-                  <TableCell>{item.m.fb ? item.m.fb.v.l : ''}</TableCell>
                   <TableCell>
-                    {item.m.rank.v.r ? item.m.rank.v.r : ''}
+                    {String(_.get(item, 'm.fb.v.l') || 0)}
+                  </TableCell>
+                  <TableCell>
+                    {String(_.get(item, 'm.rank.v.r') || 0)}
                   </TableCell>
                 </TableRow>
               );
