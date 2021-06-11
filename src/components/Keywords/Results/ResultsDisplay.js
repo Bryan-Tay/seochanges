@@ -9,9 +9,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
   TextField,
 } from '@material-ui/core';
-import React from 'react';
+import React, { useState } from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
 import { Controller, useForm } from 'react-hook-form';
 import { useKeywordsContext } from '../../../context/KeywordsContext';
@@ -20,6 +21,43 @@ import { TableExport } from 'tableexport';
 const ResultsDisplay = () => {
   const { control, handleSubmit, setValue } = useForm();
   const { fulldata: data, setData, setKeyword } = useKeywordsContext();
+
+  const [order, setOrder] = useState(null);
+  const [orderBy, setOrderBy] = useState(null);
+
+  const descendingComparator = (a, b, orderBy) => {
+    let aa = parseInt(String(a[orderBy]).replace(/\D/g, '')) || 0;
+    let bb = parseInt(String(b[orderBy]).replace(/\D/g, '')) || 0;
+    if (bb < aa) return -1;
+    if (bb > aa) return 1;
+    return 0;
+  };
+
+  const getComparator = (a, b) => {
+    return order === 'desc'
+      ? descendingComparator(a, b, orderBy)
+      : -descendingComparator(a, b, orderBy);
+  };
+
+  const stableSort = (array) => {
+    const stable = array.reduce(
+      (acc, curr) => [...acc, { kw: curr[0], ...curr[1] }],
+      []
+    );
+    const stabilizedThis = stable.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = getComparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
+  };
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
 
   const onSubmit = (formData) => {
     const kw = formData.keyword;
@@ -34,6 +72,7 @@ const ResultsDisplay = () => {
   };
 
   const onDelete = (keyword) => {
+    setKeyword(null);
     setData((current) => ({
       ...current,
       keywords: current.keywords.filter((kw) => kw !== keyword),
@@ -47,8 +86,33 @@ const ResultsDisplay = () => {
           <TableHead>
             <TableRow>
               <TableCell>Keyword</TableCell>
-              <TableCell>Current Rank</TableCell>
-              <TableCell>Search Volume</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderBy === 'seo'}
+                  direction={orderBy === 'seo' ? order : 'asc'}
+                  onClick={() => handleRequestSort('seo')}
+                >
+                  SEO
+                </TableSortLabel>
+              </TableCell>
+              <TableCell onClick={() => handleRequestSort('ranking')}>
+                <TableSortLabel
+                  active={orderBy === 'ranking'}
+                  direction={orderBy === 'ranking' ? order : 'asc'}
+                  onClick={() => handleRequestSort('ranking')}
+                >
+                  Current Rank
+                </TableSortLabel>
+              </TableCell>
+              <TableCell onClick={() => handleRequestSort('volume')}>
+                <TableSortLabel
+                  active={orderBy === 'volume'}
+                  direction={orderBy === 'volume' ? order : 'asc'}
+                  onClick={() => handleRequestSort('volume')}
+                >
+                  Search Volume
+                </TableSortLabel>
+              </TableCell>
               <TableCell>4 - 6 Mths</TableCell>
               <TableCell>7 - 9 Mths</TableCell>
               <TableCell>10 - 12 Mths</TableCell>
@@ -59,17 +123,18 @@ const ResultsDisplay = () => {
           </TableHead>
           <TableBody>
             {data &&
-              Object.entries(data).map(([kw, kwdata], i) => (
-                <TableRow key={kw}>
+              stableSort(Object.entries(data)).map((kwdata, i) => (
+                <TableRow key={kwdata.kw}>
                   <TableCell>
                     <Button
                       color='primary'
                       variant='outlined'
-                      onClick={() => setKeyword({ kw, ...kwdata })}
+                      onClick={() => setKeyword(kwdata)}
                     >
-                      {kw}
+                      {kwdata.kw}
                     </Button>
                   </TableCell>
+                  <TableCell>{kwdata.seo || '-'}</TableCell>
                   <TableCell>{kwdata.ranking || '-'}</TableCell>
                   <TableCell>{kwdata.volume || '-'}</TableCell>
                   <TableCell>
@@ -116,7 +181,7 @@ const ResultsDisplay = () => {
                   <TableCell style={{ maxWidth: '40px' }}>
                     <IconButton
                       aria-label='delete'
-                      onClick={() => onDelete(kw)}
+                      onClick={() => onDelete(kwdata.kw)}
                     >
                       <DeleteIcon fontSize='small' />
                     </IconButton>

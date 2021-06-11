@@ -116,6 +116,7 @@ const MainFunction = () => {
       if (
         kwData.fs !== undefined &&
         kwData.df !== undefined &&
+        kwData.seo !== undefined &&
         kwData.items !== undefined &&
         kwData.volume !== undefined &&
         kwData.ranking !== undefined &&
@@ -151,6 +152,7 @@ const MainFunction = () => {
       if (
         _.get(cachedKw, 'fs') !== undefined &&
         _.get(cachedKw, 'df') !== undefined &&
+        _.get(cachedKw, 'seo') !== undefined &&
         _.get(cachedKw, 'items') !== undefined &&
         _.get(cachedKw, 'volume') !== undefined &&
         _.get(cachedKw, 'ranking') !== undefined &&
@@ -164,6 +166,7 @@ const MainFunction = () => {
         // Get data from cache
         setKeywordAttribute(kw, 'fs', cachedKw.fs);
         setKeywordAttribute(kw, 'df', cachedKw.df);
+        setKeywordAttribute(kw, 'seo', cachedKw.seo);
         setKeywordAttribute(kw, 'items', cachedKw.items);
         setKeywordAttribute(kw, 'volume', cachedKw.volume);
         setKeywordAttribute(kw, 'ranking', cachedKw.ranking);
@@ -179,7 +182,10 @@ const MainFunction = () => {
         kwapi
           .getSearchVolume(kw)
           .then((data) => {
-            const volume = data.keywords[0].sv || 0;
+            // TODO: from related[0] keyword extract seo and add to fulldata (sorting attribute)
+            const seo = _.get(data, 'keywords[0].seo', 0);
+            setKeywordAttribute(kw, 'seo', seo);
+            const volume = _.get(data, 'keywords[0].sv', 0);
             setKeywordAttribute(kw, 'volume', volume);
             const related = data.keywords.filter((e) => e.seo).slice(0, 50);
             setKeywordAttribute(kw, 'related', related);
@@ -191,8 +197,8 @@ const MainFunction = () => {
         kwapi
           .getRelevantPage(kw)
           .then((data) => {
-            let pageUrl = data[0].items[0].url;
-            pageUrl = pageUrl.slice(pageUrl.length - 1);
+            let pageUrl = _.get(data, '[0].items[0].url', '');
+            pageUrl = pageUrl.slice(url.length - 1);
             setKeywordAttribute(kw, 'pageData.url', pageUrl);
             const fs = getFS(
               _.get(data[0], 'items[0].m.moz.v.pda', 0),
@@ -222,21 +228,26 @@ const MainFunction = () => {
             axios.spread((...responses) => {
               const [res1, res2, res3, res4, res5] = responses;
 
-              setKeywordAttribute(kw, 'items', res1[0].items);
+              setKeywordAttribute(kw, 'items', _.get(res1, '[0].items', []));
 
               let inRank = false;
-              if (!inRank) inRank = getRanking(kw, res1[0].items, 100, 1);
-              if (!inRank) inRank = getRanking(kw, res2[0].items, 1.8, 11);
-              if (!inRank) inRank = getRanking(kw, res3[0].items, 1.4, 21);
-              if (!inRank) inRank = getRanking(kw, res4[0].items, 1.2, 31);
-              if (!inRank) inRank = getRanking(kw, res5[0].items, 1.1, 41);
+              if (!inRank)
+                inRank = getRanking(kw, _.get(res1, '[0].items', []), 100, 1);
+              if (!inRank)
+                inRank = getRanking(kw, _.get(res2, '[0].items', []), 1.8, 11);
+              if (!inRank)
+                inRank = getRanking(kw, _.get(res3, '[0].items', []), 1.4, 21);
+              if (!inRank)
+                inRank = getRanking(kw, _.get(res4, '[0].items', []), 1.2, 31);
+              if (!inRank)
+                inRank = getRanking(kw, _.get(res5, '[0].items', []), 1.1, 41);
               if (!inRank) {
                 setKeywordAttribute(kw, 'df', 1);
                 setKeywordAttribute(kw, 'ranking', '50+');
               }
 
               const pageValues = _.concat(
-                res1[0].items.map((i) =>
+                _.get(res1, '[0].items', []).map((i) =>
                   getFS(
                     _.get(i, 'm.moz.v.pda', 0),
                     _.get(i, 'm.moz.v.upa', 0),
@@ -248,7 +259,7 @@ const MainFunction = () => {
                     checkEMD(kw, `https://mbg.com.sg:8081/https://${i.domain}/`)
                   )
                 ),
-                res2[0].items.map((i) =>
+                _.get(res2, '[0].items', []).map((i) =>
                   getFS(
                     _.get(i, 'm.moz.v.pda', 0),
                     _.get(i, 'm.moz.v.upa', 0),
@@ -304,11 +315,15 @@ const MainFunction = () => {
             Checking {url} in {locationData.sem.toUpperCase()}
           </h2>
           <p>
-            Credits remmaining:{' '}
-            {credits && credits.kw ? credits.kw.remaining : 0} /{' '}
-            {credits && credits.kw ? credits.kw.total : 0}
+            Credits remmaining:
+            <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
+              {_.get(credits, 'kw.remaining', 0)}
+            </span>
+            {' / '}
+            <span style={{ fontWeight: 'bold' }}>
+              {_.get(credits, 'kw.total', 0)}
+            </span>
           </p>
-          <pre>{JSON.stringify(credits, null, 2)}</pre>
           {!!loadingMessage && (
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <ClipLoader size={10} color={'#123abc'} />

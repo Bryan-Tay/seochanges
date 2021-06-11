@@ -45,7 +45,7 @@ class KwApi {
   getPageInfo(keyword, page = null) {
     const pageQuery = page ? `&page=${page}` : '';
     return this.client.get(
-      `https://mbg.com.sg:8081/https://api.mangools.com/v2/kwfinder/serps/?kw=${keyword}&location_id=${this.location}${pageQuery}`
+      `/serps/?kw=${keyword}&location_id=${this.location}${pageQuery}`
     );
   }
 }

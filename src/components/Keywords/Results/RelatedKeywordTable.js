@@ -28,9 +28,6 @@ const RelatedKeywordTable = ({ type }) => {
 
   const types = ['low', 'medium', 'hard'];
   const [words, setWords] = useState([]);
-  const [sort, setSort] = useState('asc');
-
-  const sortFn = (a, b) => (sort === 'asc' ? b.sv - a.sv : a.sv - b.sv);
 
   useEffect(() => {
     if (!keyword || !keyword.related) return;
@@ -56,12 +53,6 @@ const RelatedKeywordTable = ({ type }) => {
   return (
     <div className={classes.root}>
       <h2>{type} Competition</h2>
-      <Button
-        color='primary'
-        onClick={() => setSort((s) => (s === 'asc' ? 'desc' : 'asc'))}
-      >
-        Toogle Sort
-      </Button>
       <TableContainer>
         <Table>
           <TableHead>
@@ -73,29 +64,41 @@ const RelatedKeywordTable = ({ type }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {words &&
-              words.sort(sortFn).map((keyword, index) => (
-                <TableRow key={index} hover={true}>
-                  <TableCell>{keyword.kw}</TableCell>
-                  <TableCell>
-                    {keywords.includes(keyword.kw) ? (
-                      <Button disabled variant='contained'>
-                        Added!
-                      </Button>
-                    ) : (
-                      <Button
-                        color='primary'
-                        variant='outlined'
-                        onClick={() => onAdd(keyword.kw)}
-                      >
-                        Add
-                      </Button>
-                    )}
-                  </TableCell>
-                  <TableCell>{keyword.sv}</TableCell>
-                  <TableCell>{keyword.seo}</TableCell>
-                </TableRow>
-              ))}
+            {words && (
+              <>
+                {words.length > 0 ? (
+                  words.map((keyword, index) => (
+                    <TableRow key={index} hover={true}>
+                      <TableCell>{keyword.kw}</TableCell>
+                      <TableCell>
+                        {keywords.includes(keyword.kw) ? (
+                          <Button disabled variant='contained'>
+                            Added!
+                          </Button>
+                        ) : (
+                          <Button
+                            color='primary'
+                            variant='outlined'
+                            onClick={() => onAdd(keyword.kw)}
+                          >
+                            Add
+                          </Button>
+                        )}
+                      </TableCell>
+                      <TableCell>{keyword.sv}</TableCell>
+                      <TableCell>{keyword.seo}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow hover={true}>
+                    <TableCell>N/A</TableCell>
+                    <TableCell>N/A</TableCell>
+                    <TableCell>N/A</TableCell>
+                    <TableCell>N/A</TableCell>
+                  </TableRow>
+                )}
+              </>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
