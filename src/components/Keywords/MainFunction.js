@@ -106,6 +106,20 @@ const MainFunction = () => {
     }));
   };
 
+  const [loadingCredits, setLoadingCredits] = useState(true);
+  const getCredits = () => {
+    const creditsApi = new CreditsApi();
+    setLoadingCredits(true);
+    creditsApi.getCredits().then((res) => {
+      setCredits(res.credits);
+      setLoadingCredits(false);
+    });
+  };
+
+  useEffect(() => {
+    getCredits();
+  }, []);
+
   // Store fulldata in sessionStorage on every change
   useEffect(() => {
     if (!keywords || !fulldata) return;
@@ -134,9 +148,8 @@ const MainFunction = () => {
 
     const isComplete = status.filter((s) => s).length === status.length;
     if (isComplete) {
-      const creditsApi = new CreditsApi();
-      creditsApi.getCredits().then((res) => setCredits(res.credits));
       setLoadingMessage('');
+      getCredits();
     }
   }, [keywords, fulldata]);
 
@@ -304,6 +317,7 @@ const MainFunction = () => {
     <div style={{ marginBottom: '20px' }}>
       <div
         style={{
+          marginBottom: '1rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -316,13 +330,29 @@ const MainFunction = () => {
           </h2>
           <p>
             Credits remmaining:
-            <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
-              {_.get(credits, 'kw.remaining', 0)}
-            </span>
-            {' / '}
-            <span style={{ fontWeight: 'bold' }}>
-              {_.get(credits, 'kw.total', 0)}
-            </span>
+            {loadingCredits ? (
+              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>Loading...</span>
+            ) : (
+              <>
+                <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
+                  {_.get(credits, 'kw.remaining', 0)}
+                </span>
+                {' / '}
+                <span style={{ fontWeight: 'bold' }}>
+                  {_.get(credits, 'kw.total', 0)}
+                </span>
+              </>
+            )}
+          </p>
+          <p>
+            Time to reset:
+            {loadingCredits ? (
+              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>Loading...</span>
+            ) : (
+              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
+                {_.get(credits, 'ttr', 'Fully charged')}
+              </span>
+            )}
           </p>
           {!!loadingMessage && (
             <div style={{ display: 'flex', alignItems: 'center' }}>
