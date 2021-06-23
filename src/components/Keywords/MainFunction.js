@@ -141,7 +141,7 @@ const MainFunction = () => {
         kwData.pageData.q3 !== undefined &&
         kwData.pageData.q4 !== undefined
       ) {
-        sessionStorage.setItem(kw, JSON.stringify(kwData));
+        sessionStorage.setItem(`${url}-${kw}`, JSON.stringify(kwData));
         status[keywords.indexOf(kw)] = true;
       }
     }
@@ -160,7 +160,7 @@ const MainFunction = () => {
 
     setFulldata({});
     for (let kw of keywords) {
-      const cachedKw = JSON.parse(sessionStorage.getItem(kw));
+      const cachedKw = JSON.parse(sessionStorage.getItem(`${url}-${kw}`));
 
       if (
         _.get(cachedKw, 'fs') !== undefined &&
@@ -329,7 +329,7 @@ const MainFunction = () => {
             Checking {url} in {locationData.sem.toUpperCase()}
           </h2>
           <p>
-            Credits remmaining:
+            Credit Balance:
             {loadingCredits ? (
               <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>Loading...</span>
             ) : (
@@ -345,7 +345,7 @@ const MainFunction = () => {
             )}
           </p>
           <p>
-            Time to reset:
+            Time to Reset:
             {loadingCredits ? (
               <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>Loading...</span>
             ) : (

@@ -60,7 +60,7 @@ const ResultsDisplay = () => {
   };
 
   const onSubmit = (formData) => {
-    const kw = formData.keyword;
+    const kw = String(formData.keyword).toLowerCase().trim();
     setValue('keyword', '');
     setData((current) => {
       if (current.keywords.indexOf(kw) > -1) return current;
@@ -92,7 +92,7 @@ const ResultsDisplay = () => {
                   direction={orderBy === 'seo' ? order : 'asc'}
                   onClick={() => handleRequestSort('seo')}
                 >
-                  SEO
+                  Magic Score
                 </TableSortLabel>
               </TableCell>
               <TableCell onClick={() => handleRequestSort('ranking')}>

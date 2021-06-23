@@ -1,23 +1,42 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const KeywordsContext = createContext(null);
 export const useKeywordsContext = () => useContext(KeywordsContext);
 
+const defData = {
+  url: "https://www.edmaro.com.sg/",
+  location: "Singapore",
+  locationData: { mangools: 2702, sem: "sg" },
+  keywords: [
+    // "corporate gifts",
+    // "corporate gift",
+    // "corporate gifts singapore",
+    // "corporate gift singapore",
+    // "corporate gifts supplier",
+    "corporate gifts supplier signapore",
+    // "customised corporate gifts",
+    // "customised corporate gifts singapore",
+    // "corporate gifts ideas",
+    // "corporate gifts ideas singapore",
+  ],
+};
+
 const KeywordsProvider = ({ children }) => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(defData);
 
   const [errors, setErrors] = useState({});
   const [fulldata, setFulldata] = useState({});
 
   const [credits, setCredits] = useState({});
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const [keywords, setKeywords] = useState([]);
   const [keyword, setKeyword] = useState(null);
 
   useEffect(() => {
     if (data) {
-      setKeywords(data.keywords || []);
+      let kws = data.keywords.map((kw) => String(kw).toLowerCase().trim());
+      setKeywords([...new Set(kws || [])]);
     } else {
       setFulldata({});
       setKeywords([]);
