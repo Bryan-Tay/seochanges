@@ -3,26 +3,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 const KeywordsContext = createContext(null);
 export const useKeywordsContext = () => useContext(KeywordsContext);
 
-const defData = {
-  url: "https://www.edmaro.com.sg/",
-  location: "Singapore",
-  locationData: { mangools: 2702, sem: "sg" },
-  keywords: [
-    // "corporate gifts",
-    // "corporate gift",
-    // "corporate gifts singapore",
-    // "corporate gift singapore",
-    // "corporate gifts supplier",
-    "corporate gifts supplier signapore",
-    // "customised corporate gifts",
-    // "customised corporate gifts singapore",
-    // "corporate gifts ideas",
-    // "corporate gifts ideas singapore",
-  ],
-};
-
 const KeywordsProvider = ({ children }) => {
-  const [data, setData] = useState(defData);
+  const [data, setData] = useState(null);
 
   const [errors, setErrors] = useState({});
   const [fulldata, setFulldata] = useState({});
