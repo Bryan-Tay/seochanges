@@ -17,7 +17,9 @@ const KeywordsProvider = ({ children }) => {
 
   useEffect(() => {
     if (data) {
-      let kws = data.keywords.map((kw) => String(kw).toLowerCase().trim());
+      let kws = data.keywords
+        .map((kw) => String(kw).toLowerCase().trim())
+        .filter((kw) => !!kw);
       setKeywords([...new Set(kws || [])]);
     } else {
       setFulldata({});
