@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 class KwApi {
   client;
@@ -10,9 +10,7 @@ class KwApi {
     const kwapi = axios;
     kwapi.defaults.baseURL = process.env.REACT_APP_KWAPI;
     kwapi.defaults.headers = {
-      'x-access-token': process.env.REACT_APP_KEY,
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "x-access-token": process.env.REACT_APP_KEY,
     };
 
     this.url = url;
@@ -22,7 +20,6 @@ class KwApi {
       (response) => response.data,
       (error) => {
         console.log(error);
-        console.log(JSON.stringify(error));
         return new Error(
           error.isAxiosError ? error.response.data.error.message : error.message
         );
@@ -43,7 +40,7 @@ class KwApi {
   }
 
   getPageInfo(keyword, page = null) {
-    const pageQuery = page ? `&page=${page}` : '';
+    const pageQuery = page ? `&page=${page}` : "";
     return this.client.get(
       `/serps/?kw=${keyword}&location_id=${this.location}${pageQuery}`
     );

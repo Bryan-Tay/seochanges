@@ -106,6 +106,20 @@ const MainFunction = () => {
     }));
   };
 
+  const [loadingCredits, setLoadingCredits] = useState(true);
+  const getCredits = () => {
+    const creditsApi = new CreditsApi();
+    setLoadingCredits(true);
+    creditsApi.getCredits().then((res) => {
+      setCredits(res.credits);
+      setLoadingCredits(false);
+    });
+  };
+
+  useEffect(() => {
+    getCredits();
+  }, []);
+
   // Store fulldata in sessionStorage on every change
   useEffect(() => {
     if (!keywords || !fulldata) return;
@@ -127,16 +141,15 @@ const MainFunction = () => {
         kwData.pageData.q3 !== undefined &&
         kwData.pageData.q4 !== undefined
       ) {
-        sessionStorage.setItem(kw, JSON.stringify(kwData));
+        sessionStorage.setItem(`${url}-${kw}`, JSON.stringify(kwData));
         status[keywords.indexOf(kw)] = true;
       }
     }
 
     const isComplete = status.filter((s) => s).length === status.length;
     if (isComplete) {
-      const creditsApi = new CreditsApi();
-      creditsApi.getCredits().then((res) => setCredits(res.credits));
       setLoadingMessage('');
+      getCredits();
     }
   }, [keywords, fulldata]);
 
@@ -147,7 +160,7 @@ const MainFunction = () => {
 
     setFulldata({});
     for (let kw of keywords) {
-      const cachedKw = JSON.parse(sessionStorage.getItem(kw));
+      const cachedKw = JSON.parse(sessionStorage.getItem(`${url}-${kw}`));
 
       if (
         _.get(cachedKw, 'fs') !== undefined &&
@@ -304,6 +317,7 @@ const MainFunction = () => {
     <div style={{ marginBottom: '20px' }}>
       <div
         style={{
+          marginBottom: '1rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -315,14 +329,30 @@ const MainFunction = () => {
             Checking {url} in {locationData.sem.toUpperCase()}
           </h2>
           <p>
-            Credits remmaining:
-            <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
-              {_.get(credits, 'kw.remaining', 0)}
-            </span>
-            {' / '}
-            <span style={{ fontWeight: 'bold' }}>
-              {_.get(credits, 'kw.total', 0)}
-            </span>
+            Credit Balance:
+            {loadingCredits ? (
+              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>Loading...</span>
+            ) : (
+              <>
+                <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
+                  {_.get(credits, 'kw.remaining', 0)}
+                </span>
+                {' / '}
+                <span style={{ fontWeight: 'bold' }}>
+                  {_.get(credits, 'kw.total', 0)}
+                </span>
+              </>
+            )}
+          </p>
+          <p>
+            Time to Reset:
+            {loadingCredits ? (
+              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>Loading...</span>
+            ) : (
+              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
+                {_.get(credits, 'ttr', 'Fully charged')}
+              </span>
+            )}
           </p>
           {!!loadingMessage && (
             <div style={{ display: 'flex', alignItems: 'center' }}>

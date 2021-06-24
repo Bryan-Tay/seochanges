@@ -1,30 +1,24 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const KeywordsContext = createContext(null);
 export const useKeywordsContext = () => useContext(KeywordsContext);
 
-const testData = {
-  url: 'https://mediaonemarketing.com.sg/',
-  location: 'Singapore',
-  locationData: { mangools: 2702, sem: 'sg' },
-  keywords: ['help', 'media on marketing', 'marketing', 'help marketing'],
-};
-
 const KeywordsProvider = ({ children }) => {
-  const [data, setData] = useState(testData);
+  const [data, setData] = useState(null);
 
   const [errors, setErrors] = useState({});
   const [fulldata, setFulldata] = useState({});
 
   const [credits, setCredits] = useState({});
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const [keywords, setKeywords] = useState([]);
   const [keyword, setKeyword] = useState(null);
 
   useEffect(() => {
     if (data) {
-      setKeywords(data.keywords || []);
+      let kws = data.keywords.map((kw) => String(kw).toLowerCase().trim());
+      setKeywords([...new Set(kws || [])]);
     } else {
       setFulldata({});
       setKeywords([]);
