@@ -37,7 +37,7 @@ const MainFunction = () => {
   const [FB] = useState(0.02);
   const [LPS] = useState(0.03);
 
-  const [byCategory, setByCategory] = useState(false);
+  const [byDifficulty, setByDifficulty] = useState(false);
 
   const seoCategories = [
     [0, 30, "low"],
@@ -397,9 +397,9 @@ const MainFunction = () => {
           <Button
             color="primary"
             variant="contained"
-            onClick={() => setByCategory((byCat) => !byCat)}
+            onClick={() => setByDifficulty((byCat) => !byCat)}
           >
-            {byCategory ? 'Show All' : 'Show By Category'}
+            {byDifficulty ? 'Show All' : 'Show By Difficulty'}
           </Button>
           <Button
             color="primary"
@@ -412,7 +412,7 @@ const MainFunction = () => {
         </div>
       </div>
 
-      <ResultsDisplay byCategory={byCategory} />
+      <ResultsDisplay byDifficulty={byDifficulty} />
       {errors &&
         Object.entries(errors).map(([kw, error]) => (
           <p>

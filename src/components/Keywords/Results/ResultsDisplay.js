@@ -18,6 +18,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { Controller, useForm } from "react-hook-form";
 import { useKeywordsContext } from "../../../context/KeywordsContext";
 import { TableExport } from "tableexport";
+import SummaryCards from "./SummaryCards";
 
 const ResultsDisplaySubheaderRow = ({ label, data }) => (
   <TableRow style={{ backgroundColor: "#ececec" }}>
@@ -36,7 +37,14 @@ const ResultsDisplaySubheaderRow = ({ label, data }) => (
     <TableCell></TableCell>
     <TableCell></TableCell>
     <TableCell>
-      {Object.values(data).reduce((acc, curr) => acc + (curr.volume || 0), 0)}
+      <span
+        style={{
+          fontSize: "0.8rem",
+          fontWeight: "bold",
+        }}
+      >
+        {Object.values(data).reduce((acc, curr) => acc + (curr.volume || 0), 0)}
+      </span>
     </TableCell>
     <TableCell></TableCell>
     <TableCell></TableCell>
@@ -111,7 +119,7 @@ const ResultsDisplayRow = ({ kwdata, onDelete, setKeyword }) => {
   );
 };
 
-const ResultsDisplay = ({ byCategory }) => {
+const ResultsDisplay = ({ byDifficulty }) => {
   const { control, handleSubmit, setValue } = useForm();
   const { fulldata: data, setData, setKeyword } = useKeywordsContext();
 
@@ -238,7 +246,7 @@ const ResultsDisplay = ({ byCategory }) => {
           </TableHead>
           {data && (
             <TableBody>
-              {!byCategory ? (
+              {!byDifficulty ? (
                 stableSort(
                   Object.entries({ ...lowData, ...mediumData, ...highData })
                 ).map((kwdata, i) => (
@@ -329,6 +337,7 @@ const ResultsDisplay = ({ byCategory }) => {
             <FormHelperText>Add More Keywords (enter to submit)</FormHelperText>
           </FormControl>
         </form>
+        <SummaryCards low={lowData} medium={mediumData} high={highData} />
         <Button
           id="export-button"
           color="primary"
