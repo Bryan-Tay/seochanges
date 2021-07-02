@@ -11,30 +11,145 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
-} from '@material-ui/core';
-import React, { useState } from 'react';
-import DeleteIcon from '@material-ui/icons/Delete';
-import { Controller, useForm } from 'react-hook-form';
-import { useKeywordsContext } from '../../../context/KeywordsContext';
-import { TableExport } from 'tableexport';
+} from "@material-ui/core";
+import _ from "lodash";
+import React, { useEffect, useState } from "react";
+import DeleteIcon from "@material-ui/icons/Delete";
+import { Controller, useForm } from "react-hook-form";
+import { useKeywordsContext } from "../../../context/KeywordsContext";
+import { TableExport } from "tableexport";
 
-const ResultsDisplay = () => {
+const ResultsDisplaySubheaderRow = ({ label, data }) => (
+  <TableRow style={{ backgroundColor: "#ececec" }}>
+    <TableCell>
+      <span
+        style={{
+          fontSize: "1rem",
+          fontWeight: "bold",
+          lineHeight: "3rem",
+          marginLeft: "1rem",
+        }}
+      >
+        {label}
+      </span>
+    </TableCell>
+    <TableCell></TableCell>
+    <TableCell></TableCell>
+    <TableCell>
+      {Object.values(data).reduce((acc, curr) => acc + (curr.volume || 0), 0)}
+    </TableCell>
+    <TableCell></TableCell>
+    <TableCell></TableCell>
+    <TableCell></TableCell>
+    <TableCell></TableCell>
+    <TableCell></TableCell>
+    <TableCell></TableCell>
+  </TableRow>
+);
+
+const ResultsDisplayRow = ({ kwdata, onDelete, setKeyword }) => {
+  return (
+    <TableRow>
+      <TableCell>
+        <Button
+          size="small"
+          color="primary"
+          variant="outlined"
+          onClick={() => setKeyword(kwdata)}
+        >
+          {kwdata.kw}
+        </Button>
+      </TableCell>
+      <TableCell>{kwdata.seo || "-"}</TableCell>
+      <TableCell>{kwdata.ranking || "-"}</TableCell>
+      <TableCell>{kwdata.volume || "-"}</TableCell>
+      <TableCell>
+        {kwdata.fs &&
+        kwdata.df &&
+        kwdata.pageData.q2 &&
+        kwdata.fs * kwdata.df >= kwdata.pageData.q2
+          ? "✔"
+          : ""}
+      </TableCell>
+      <TableCell>
+        {kwdata.fs &&
+        kwdata.df &&
+        kwdata.pageData.q2 &&
+        kwdata.pageData.q3 &&
+        kwdata.fs * kwdata.df < kwdata.pageData.q2 &&
+        kwdata.fs * kwdata.df >= kwdata.pageData.q3
+          ? "✔"
+          : ""}
+      </TableCell>
+      <TableCell>
+        {kwdata.fs &&
+        kwdata.df &&
+        kwdata.pageData.q3 &&
+        kwdata.pageData.q4 &&
+        kwdata.fs * kwdata.df < kwdata.pageData.q3 &&
+        kwdata.fs * kwdata.df >= kwdata.pageData.q4
+          ? "✔"
+          : ""}
+      </TableCell>
+      <TableCell>
+        {kwdata.fs &&
+        kwdata.df &&
+        kwdata.pageData.q4 &&
+        kwdata.fs * kwdata.df < kwdata.pageData.q4
+          ? "✔"
+          : ""}
+      </TableCell>
+      <TableCell>
+        {kwdata.pageData && kwdata.pageData.url ? kwdata.pageData.url : ""}
+      </TableCell>
+      <TableCell style={{ maxWidth: "40px" }}>
+        <IconButton aria-label="delete" onClick={() => onDelete(kwdata.kw)}>
+          <DeleteIcon fontSize="small" />
+        </IconButton>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const ResultsDisplay = ({ byCategory }) => {
   const { control, handleSubmit, setValue } = useForm();
   const { fulldata: data, setData, setKeyword } = useKeywordsContext();
 
   const [order, setOrder] = useState(null);
   const [orderBy, setOrderBy] = useState(null);
 
+  const [lowData, setLowData] = useState({});
+  const [mediumData, setMediumData] = useState({});
+  const [highData, sethighData] = useState({});
+  useEffect(() => {
+    let low = {};
+    let medium = {};
+    let high = {};
+    for (let [kw, kwdata] of Object.entries(data)) {
+      if (kwdata.seoLevel === "low") {
+        low[kw] = kwdata;
+      } else if (kwdata.seoLevel === "medium") {
+        medium[kw] = kwdata;
+      } else if (kwdata.seoLevel === "high") {
+        high[kw] = kwdata;
+      }
+    }
+
+    setLowData(low);
+    setMediumData(medium);
+    sethighData(high);
+  }, [data]);
+
   const descendingComparator = (a, b, orderBy) => {
-    let aa = parseInt(String(a[orderBy]).replace(/\D/g, '')) || 0;
-    let bb = parseInt(String(b[orderBy]).replace(/\D/g, '')) || 0;
+    let aa = parseInt(String(a[orderBy]).replace(/\D/g, "")) || 0;
+    let bb = parseInt(String(b[orderBy]).replace(/\D/g, "")) || 0;
     if (bb < aa) return -1;
     if (bb > aa) return 1;
     return 0;
   };
 
   const getComparator = (a, b) => {
-    return order === 'desc'
+    return order === "desc"
       ? descendingComparator(a, b, orderBy)
       : -descendingComparator(a, b, orderBy);
   };
@@ -54,14 +169,14 @@ const ResultsDisplay = () => {
   };
 
   const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
   const onSubmit = (formData) => {
     const kw = String(formData.keyword).toLowerCase().trim();
-    setValue('keyword', '');
+    setValue("keyword", "");
     setData((current) => {
       if (current.keywords.indexOf(kw) > -1) return current;
       return {
@@ -82,33 +197,33 @@ const ResultsDisplay = () => {
   return (
     <div>
       <TableContainer>
-        <Table id='main-table'>
+        <Table id="main-table" size="small">
           <TableHead>
             <TableRow>
               <TableCell>Keyword</TableCell>
               <TableCell>
                 <TableSortLabel
-                  active={orderBy === 'seo'}
-                  direction={orderBy === 'seo' ? order : 'asc'}
-                  onClick={() => handleRequestSort('seo')}
+                  active={orderBy === "seo"}
+                  direction={orderBy === "seo" ? order : "asc"}
+                  onClick={() => handleRequestSort("seo")}
                 >
                   Magic Score
                 </TableSortLabel>
               </TableCell>
-              <TableCell onClick={() => handleRequestSort('ranking')}>
+              <TableCell onClick={() => handleRequestSort("ranking")}>
                 <TableSortLabel
-                  active={orderBy === 'ranking'}
-                  direction={orderBy === 'ranking' ? order : 'asc'}
-                  onClick={() => handleRequestSort('ranking')}
+                  active={orderBy === "ranking"}
+                  direction={orderBy === "ranking" ? order : "asc"}
+                  onClick={() => handleRequestSort("ranking")}
                 >
                   Current Rank
                 </TableSortLabel>
               </TableCell>
-              <TableCell onClick={() => handleRequestSort('volume')}>
+              <TableCell onClick={() => handleRequestSort("volume")}>
                 <TableSortLabel
-                  active={orderBy === 'volume'}
-                  direction={orderBy === 'volume' ? order : 'asc'}
-                  onClick={() => handleRequestSort('volume')}
+                  active={orderBy === "volume"}
+                  direction={orderBy === "volume" ? order : "asc"}
+                  onClick={() => handleRequestSort("volume")}
                 >
                   Search Volume
                 </TableSortLabel>
@@ -121,95 +236,93 @@ const ResultsDisplay = () => {
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {data &&
-              stableSort(Object.entries(data)).map((kwdata, i) => (
-                <TableRow key={kwdata.kw}>
-                  <TableCell>
-                    <Button
-                      color='primary'
-                      variant='outlined'
-                      onClick={() => setKeyword(kwdata)}
-                    >
-                      {kwdata.kw}
-                    </Button>
-                  </TableCell>
-                  <TableCell>{kwdata.seo || '-'}</TableCell>
-                  <TableCell>{kwdata.ranking || '-'}</TableCell>
-                  <TableCell>{kwdata.volume || '-'}</TableCell>
-                  <TableCell>
-                    {kwdata.fs &&
-                    kwdata.df &&
-                    kwdata.pageData.q2 &&
-                    kwdata.fs * kwdata.df >= kwdata.pageData.q2
-                      ? '✔'
-                      : ''}
-                  </TableCell>
-                  <TableCell>
-                    {kwdata.fs &&
-                    kwdata.df &&
-                    kwdata.pageData.q2 &&
-                    kwdata.pageData.q3 &&
-                    kwdata.fs * kwdata.df < kwdata.pageData.q2 &&
-                    kwdata.fs * kwdata.df >= kwdata.pageData.q3
-                      ? '✔'
-                      : ''}
-                  </TableCell>
-                  <TableCell>
-                    {kwdata.fs &&
-                    kwdata.df &&
-                    kwdata.pageData.q3 &&
-                    kwdata.pageData.q4 &&
-                    kwdata.fs * kwdata.df < kwdata.pageData.q3 &&
-                    kwdata.fs * kwdata.df >= kwdata.pageData.q4
-                      ? '✔'
-                      : ''}
-                  </TableCell>
-                  <TableCell>
-                    {kwdata.fs &&
-                    kwdata.df &&
-                    kwdata.pageData.q4 &&
-                    kwdata.fs * kwdata.df < kwdata.pageData.q4
-                      ? '✔'
-                      : ''}
-                  </TableCell>
-                  <TableCell>
-                    {kwdata.pageData && kwdata.pageData.url
-                      ? kwdata.pageData.url
-                      : ''}
-                  </TableCell>
-                  <TableCell style={{ maxWidth: '40px' }}>
-                    <IconButton
-                      aria-label='delete'
-                      onClick={() => onDelete(kwdata.kw)}
-                    >
-                      <DeleteIcon fontSize='small' />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
+          {data && (
+            <TableBody>
+              {!byCategory ? (
+                stableSort(
+                  Object.entries({ ...lowData, ...mediumData, ...highData })
+                ).map((kwdata, i) => (
+                  <ResultsDisplayRow
+                    key={kwdata.kw}
+                    kwdata={kwdata}
+                    onDelete={onDelete}
+                    setKeyword={setKeyword}
+                  />
+                ))
+              ) : (
+                <>
+                  {Object.keys(lowData).length > 0 && (
+                    <>
+                      <ResultsDisplaySubheaderRow label="Low" data={lowData} />
+                      {stableSort(Object.entries(lowData)).map((kwdata, i) => (
+                        <ResultsDisplayRow
+                          key={kwdata.kw}
+                          kwdata={kwdata}
+                          onDelete={onDelete}
+                          setKeyword={setKeyword}
+                        />
+                      ))}
+                    </>
+                  )}
+                  {Object.keys(mediumData).length > 0 && (
+                    <>
+                      <ResultsDisplaySubheaderRow
+                        label="Medium"
+                        data={mediumData}
+                      />
+                      {stableSort(Object.entries(mediumData)).map(
+                        (kwdata, i) => (
+                          <ResultsDisplayRow
+                            key={kwdata.kw}
+                            kwdata={kwdata}
+                            onDelete={onDelete}
+                            setKeyword={setKeyword}
+                          />
+                        )
+                      )}
+                    </>
+                  )}
+                  {Object.keys(highData).length > 0 && (
+                    <>
+                      <ResultsDisplaySubheaderRow
+                        label="High"
+                        data={highData}
+                      />
+                      {stableSort(Object.entries(highData)).map((kwdata, i) => (
+                        <ResultsDisplayRow
+                          key={kwdata.kw}
+                          kwdata={kwdata}
+                          onDelete={onDelete}
+                          setKeyword={setKeyword}
+                        />
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
+            </TableBody>
+          )}
         </Table>
       </TableContainer>
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
-          <FormControl fullWidth margin='normal'>
+        <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+          <FormControl fullWidth margin="normal">
             <Controller
-              name='keyword'
-              defaultValue=''
+              name="keyword"
+              defaultValue=""
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  type='text'
+                  type="text"
                   fullWidth={true}
-                  placeholder='i.e. seo services singapore'
+                  placeholder="i.e. seo services singapore"
                 />
               )}
             />
@@ -217,13 +330,13 @@ const ResultsDisplay = () => {
           </FormControl>
         </form>
         <Button
-          id='export-button'
-          color='primary'
-          variant='contained'
-          className='export-button'
+          id="export-button"
+          color="primary"
+          variant="contained"
+          className="export-button"
           onClick={() => {
-            TableExport(document.getElementById('main-table'));
-            document.getElementById('export-button').classList.add('exported');
+            TableExport(document.getElementById("main-table"));
+            document.getElementById("export-button").classList.add("exported");
           }}
         >
           Export

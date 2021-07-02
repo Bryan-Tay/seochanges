@@ -1,15 +1,15 @@
-import { Button } from '@material-ui/core';
-import axios from 'axios';
-import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
-import { ClipLoader } from 'react-spinners';
-import { useKeywordsContext } from '../../context/KeywordsContext';
-import CreditsApi from '../../services/credits';
-import KwApi from '../../services/keyword';
-import CustomPrompt from './Misc/CustomPrompt';
-import KeywordPageOneDisplay from './Results/KeywordPageOneDisplay';
-import RelatedKeywordTable from './Results/RelatedKeywordTable';
-import ResultsDisplay from './Results/ResultsDisplay';
+import { Button } from "@material-ui/core";
+import axios from "axios";
+import _ from "lodash";
+import React, { useEffect, useState } from "react";
+import { ClipLoader } from "react-spinners";
+import { useKeywordsContext } from "../../context/KeywordsContext";
+import CreditsApi from "../../services/credits";
+import KwApi from "../../services/keyword";
+import CustomPrompt from "./Misc/CustomPrompt";
+import KeywordPageOneDisplay from "./Results/KeywordPageOneDisplay";
+import RelatedKeywordTable from "./Results/RelatedKeywordTable";
+import ResultsDisplay from "./Results/ResultsDisplay";
 
 const MainFunction = () => {
   const {
@@ -37,6 +37,19 @@ const MainFunction = () => {
   const [FB] = useState(0.02);
   const [LPS] = useState(0.03);
 
+  const [byCategory, setByCategory] = useState(false);
+
+  const seoCategories = [
+    [0, 30, "low"],
+    [30, 60, "medium"],
+    [60, 100, "hight"],
+  ];
+
+  const getSeoLevel = (seo = 0) => {
+    const category = seoCategories.find((cat) => cat[0] <= seo && seo < cat[1]);
+    return category[2];
+  };
+
   // Basically, the score from Mangools multiplied by the coefficients we set above.
   const getFS = (da, pa, cf, tf, links, fb, lps, emd) => {
     let fs =
@@ -54,11 +67,11 @@ const MainFunction = () => {
   // Function to get whether a domain is EMD or not
   const checkEMD = (keyword, tempURL) => {
     let hostname = new URL(tempURL).hostname;
-    if (hostname.includes('www.')) {
+    if (hostname.includes("www.")) {
       hostname = hostname.slice(4);
     }
-    let match = hostname.substr(0, hostname.indexOf('.'));
-    keyword = keyword.replace(/\s+/g, '');
+    let match = hostname.substr(0, hostname.indexOf("."));
+    keyword = keyword.replace(/\s+/g, "");
     if (match.includes(keyword) || keyword.includes(match)) {
       return 1.5;
     } else {
@@ -72,8 +85,8 @@ const MainFunction = () => {
       const domains = items.map((i) => i.domain);
       for (let i = 0; i < domains.length; i++) {
         if (url.includes(domains[i])) {
-          setKeywordAttribute(kw, 'df', df);
-          setKeywordAttribute(kw, 'ranking', String(i + offset));
+          setKeywordAttribute(kw, "df", df);
+          setKeywordAttribute(kw, "ranking", String(i + offset));
           return true;
         }
       }
@@ -120,13 +133,13 @@ const MainFunction = () => {
     getCredits();
   }, []);
 
-  // Store fulldata in sessionStorage on every change
+  // Store fulldata in localStorage on every change
   useEffect(() => {
     if (!keywords || !fulldata) return;
 
     let status = new Array(keywords.length).fill(false);
     for (let kw of keywords) {
-      const kwData = fulldata[kw] || {};
+      let kwData = fulldata[kw] || {};
       if (
         kwData.fs !== undefined &&
         kwData.df !== undefined &&
@@ -135,20 +148,23 @@ const MainFunction = () => {
         kwData.volume !== undefined &&
         kwData.ranking !== undefined &&
         kwData.related !== undefined &&
+        kwData.seoLevel !== undefined &&
         kwData.pageData !== undefined &&
         kwData.pageData.url !== undefined &&
         kwData.pageData.q2 !== undefined &&
         kwData.pageData.q3 !== undefined &&
         kwData.pageData.q4 !== undefined
       ) {
-        sessionStorage.setItem(`${url}-${kw}`, JSON.stringify(kwData));
+        kwData["expirationDate"] =
+          new Date().getTime() + 1000 * 60 * 60 * 24 * 14; // 14 days
+        localStorage.setItem(`${url}-${kw}`, JSON.stringify(kwData));
         status[keywords.indexOf(kw)] = true;
       }
     }
 
     const isComplete = status.filter((s) => s).length === status.length;
     if (isComplete) {
-      setLoadingMessage('');
+      setLoadingMessage("");
       getCredits();
     }
   }, [keywords, fulldata]);
@@ -160,48 +176,58 @@ const MainFunction = () => {
 
     setFulldata({});
     for (let kw of keywords) {
-      const cachedKw = JSON.parse(sessionStorage.getItem(`${url}-${kw}`));
+      const cachedKw = JSON.parse(localStorage.getItem(`${url}-${kw}`));
 
       if (
-        _.get(cachedKw, 'fs') !== undefined &&
-        _.get(cachedKw, 'df') !== undefined &&
-        _.get(cachedKw, 'seo') !== undefined &&
-        _.get(cachedKw, 'items') !== undefined &&
-        _.get(cachedKw, 'volume') !== undefined &&
-        _.get(cachedKw, 'ranking') !== undefined &&
-        _.get(cachedKw, 'related') !== undefined &&
-        _.get(cachedKw, 'pageData') !== undefined &&
-        _.get(cachedKw, 'pageData.url') !== undefined &&
-        _.get(cachedKw, 'pageData.q2') !== undefined &&
-        _.get(cachedKw, 'pageData.q3') !== undefined &&
-        _.get(cachedKw, 'pageData.q4') !== undefined
+        new Date().getTime() < _.get(cachedKw, "expirationDate") &&
+        _.get(cachedKw, "fs") !== undefined &&
+        _.get(cachedKw, "df") !== undefined &&
+        _.get(cachedKw, "seo") !== undefined &&
+        _.get(cachedKw, "items") !== undefined &&
+        _.get(cachedKw, "volume") !== undefined &&
+        _.get(cachedKw, "ranking") !== undefined &&
+        _.get(cachedKw, "related") !== undefined &&
+        _.get(cachedKw, "seoLevel") !== undefined &&
+        _.get(cachedKw, "pageData") !== undefined &&
+        _.get(cachedKw, "pageData.url") !== undefined &&
+        _.get(cachedKw, "pageData.q2") !== undefined &&
+        _.get(cachedKw, "pageData.q3") !== undefined &&
+        _.get(cachedKw, "pageData.q4") !== undefined
       ) {
         // Get data from cache
-        setKeywordAttribute(kw, 'fs', cachedKw.fs);
-        setKeywordAttribute(kw, 'df', cachedKw.df);
-        setKeywordAttribute(kw, 'seo', cachedKw.seo);
-        setKeywordAttribute(kw, 'items', cachedKw.items);
-        setKeywordAttribute(kw, 'volume', cachedKw.volume);
-        setKeywordAttribute(kw, 'ranking', cachedKw.ranking);
-        setKeywordAttribute(kw, 'related', cachedKw.related);
-        setKeywordAttribute(kw, 'pageData', cachedKw.pageData);
-        setKeywordAttribute(kw, 'pageData.url', cachedKw.pageData.url);
-        setKeywordAttribute(kw, 'pageData.q2', cachedKw.pageData.q2);
-        setKeywordAttribute(kw, 'pageData.q3', cachedKw.pageData.q3);
-        setKeywordAttribute(kw, 'pageData.q4', cachedKw.pageData.q4);
+        setKeywordAttribute(kw, "fs", cachedKw.fs);
+        setKeywordAttribute(kw, "df", cachedKw.df);
+        setKeywordAttribute(kw, "seo", cachedKw.seo);
+        setKeywordAttribute(kw, "items", cachedKw.items);
+        setKeywordAttribute(kw, "volume", cachedKw.volume);
+        setKeywordAttribute(kw, "ranking", cachedKw.ranking);
+        setKeywordAttribute(kw, "related", cachedKw.related);
+        setKeywordAttribute(kw, "seoLevel", cachedKw.seoLevel);
+        setKeywordAttribute(kw, "pageData", cachedKw.pageData);
+        setKeywordAttribute(kw, "pageData.url", cachedKw.pageData.url);
+        setKeywordAttribute(kw, "pageData.q2", cachedKw.pageData.q2);
+        setKeywordAttribute(kw, "pageData.q3", cachedKw.pageData.q3);
+        setKeywordAttribute(kw, "pageData.q4", cachedKw.pageData.q4);
       } else {
         // Getting Search Volume + Related Keywords (svrk)
         setLoadingMessage(`Getting search volume for ${kw}`);
         kwapi
           .getSearchVolume(kw)
           .then((data) => {
-            // TODO: from related[0] keyword extract seo and add to fulldata (sorting attribute)
-            const seo = _.get(data, 'keywords[0].seo', 0);
-            setKeywordAttribute(kw, 'seo', seo);
-            const volume = _.get(data, 'keywords[0].sv', 0);
-            setKeywordAttribute(kw, 'volume', volume);
-            const related = data.keywords.filter((e) => e.seo).slice(0, 50);
-            setKeywordAttribute(kw, 'related', related);
+            const seo = _.get(data, "keywords[0].seo", 0);
+            setKeywordAttribute(kw, "seo", seo);
+            const seoLevel = getSeoLevel(seo);
+            setKeywordAttribute(kw, "seoLevel", seoLevel);
+            const volume = _.get(data, "keywords[0].sv", 0);
+            setKeywordAttribute(kw, "volume", volume);
+            const related = data.keywords
+              .filter((kw) => kw.seo)
+              .slice(0, 300)
+              .map((kw) => ({
+                ...kw,
+                seoLevel: getSeoLevel(kw.seo),
+              }));
+            setKeywordAttribute(kw, "related", related);
           })
           .catch((err) => onKeywordError(kw, err));
 
@@ -210,20 +236,20 @@ const MainFunction = () => {
         kwapi
           .getRelevantPage(kw)
           .then((data) => {
-            let pageUrl = _.get(data, '[0].items[0].url', '');
+            let pageUrl = _.get(data, "[0].items[0].url", "");
             pageUrl = pageUrl.slice(url.length - 1);
-            setKeywordAttribute(kw, 'pageData.url', pageUrl);
+            setKeywordAttribute(kw, "pageData.url", pageUrl);
             const fs = getFS(
-              _.get(data[0], 'items[0].m.moz.v.pda', 0),
-              _.get(data[0], 'items[0].m.moz.v.upa', 0),
-              _.get(data[0], 'items[0].m.majestic.v.CitationFlow', 0),
-              _.get(data[0], 'items[0].m.majestic.v.TrustFlow', 0),
-              _.get(data[0], 'items[0].m.majestic.v.ExtBackLinks', 0),
-              _.get(data[0], 'items[0].m.fb.v.l', 0),
-              _.get(data[0], 'items[0].m.rank.v.r', 0),
+              _.get(data[0], "items[0].m.moz.v.pda", 0),
+              _.get(data[0], "items[0].m.moz.v.upa", 0),
+              _.get(data[0], "items[0].m.majestic.v.CitationFlow", 0),
+              _.get(data[0], "items[0].m.majestic.v.TrustFlow", 0),
+              _.get(data[0], "items[0].m.majestic.v.ExtBackLinks", 0),
+              _.get(data[0], "items[0].m.fb.v.l", 0),
+              _.get(data[0], "items[0].m.rank.v.r", 0),
               checkEMD(kw, url)
             );
-            setKeywordAttribute(kw, 'fs', fs);
+            setKeywordAttribute(kw, "fs", fs);
           })
           .catch((err) => onKeywordError(kw, err));
 
@@ -241,46 +267,46 @@ const MainFunction = () => {
             axios.spread((...responses) => {
               const [res1, res2, res3, res4, res5] = responses;
 
-              setKeywordAttribute(kw, 'items', _.get(res1, '[0].items', []));
+              setKeywordAttribute(kw, "items", _.get(res1, "[0].items", []));
 
               let inRank = false;
               if (!inRank)
-                inRank = getRanking(kw, _.get(res1, '[0].items', []), 100, 1);
+                inRank = getRanking(kw, _.get(res1, "[0].items", []), 100, 1);
               if (!inRank)
-                inRank = getRanking(kw, _.get(res2, '[0].items', []), 1.8, 11);
+                inRank = getRanking(kw, _.get(res2, "[0].items", []), 1.8, 11);
               if (!inRank)
-                inRank = getRanking(kw, _.get(res3, '[0].items', []), 1.4, 21);
+                inRank = getRanking(kw, _.get(res3, "[0].items", []), 1.4, 21);
               if (!inRank)
-                inRank = getRanking(kw, _.get(res4, '[0].items', []), 1.2, 31);
+                inRank = getRanking(kw, _.get(res4, "[0].items", []), 1.2, 31);
               if (!inRank)
-                inRank = getRanking(kw, _.get(res5, '[0].items', []), 1.1, 41);
+                inRank = getRanking(kw, _.get(res5, "[0].items", []), 1.1, 41);
               if (!inRank) {
-                setKeywordAttribute(kw, 'df', 1);
-                setKeywordAttribute(kw, 'ranking', '50+');
+                setKeywordAttribute(kw, "df", 1);
+                setKeywordAttribute(kw, "ranking", "50+");
               }
 
               const pageValues = _.concat(
-                _.get(res1, '[0].items', []).map((i) =>
+                _.get(res1, "[0].items", []).map((i) =>
                   getFS(
-                    _.get(i, 'm.moz.v.pda', 0),
-                    _.get(i, 'm.moz.v.upa', 0),
-                    _.get(i, 'm.majestic.v.CitationFlow', 0),
-                    _.get(i, 'm.majestic.v.TrustFlow', 0),
-                    _.get(i, 'm.majestic.v.ExtBackLinks', 0),
-                    _.get(i, 'm.fb.v.l', 0),
-                    _.get(i, 'm.rank.v.r', 0),
+                    _.get(i, "m.moz.v.pda", 0),
+                    _.get(i, "m.moz.v.upa", 0),
+                    _.get(i, "m.majestic.v.CitationFlow", 0),
+                    _.get(i, "m.majestic.v.TrustFlow", 0),
+                    _.get(i, "m.majestic.v.ExtBackLinks", 0),
+                    _.get(i, "m.fb.v.l", 0),
+                    _.get(i, "m.rank.v.r", 0),
                     checkEMD(kw, `https://mbg.com.sg:8081/https://${i.domain}/`)
                   )
                 ),
-                _.get(res2, '[0].items', []).map((i) =>
+                _.get(res2, "[0].items", []).map((i) =>
                   getFS(
-                    _.get(i, 'm.moz.v.pda', 0),
-                    _.get(i, 'm.moz.v.upa', 0),
-                    _.get(i, 'm.majestic.v.CitationFlow', 0),
-                    _.get(i, 'm.majestic.v.TrustFlow', 0),
-                    _.get(i, 'm.majestic.v.ExtBackLinks', 0),
-                    _.get(i, 'm.fb.v.l', 0),
-                    _.get(i, 'm.rank.v.r', 0),
+                    _.get(i, "m.moz.v.pda", 0),
+                    _.get(i, "m.moz.v.upa", 0),
+                    _.get(i, "m.majestic.v.CitationFlow", 0),
+                    _.get(i, "m.majestic.v.TrustFlow", 0),
+                    _.get(i, "m.majestic.v.ExtBackLinks", 0),
+                    _.get(i, "m.fb.v.l", 0),
+                    _.get(i, "m.rank.v.r", 0),
                     checkEMD(kw, `https://mbg.com.sg:8081/https://${i.domain}/`)
                   )
                 )
@@ -304,9 +330,9 @@ const MainFunction = () => {
 
               const q4 = _.mean(pageValues.slice(14));
 
-              setKeywordAttribute(kw, 'pageData.q2', q2);
-              setKeywordAttribute(kw, 'pageData.q3', q3);
-              setKeywordAttribute(kw, 'pageData.q4', q4);
+              setKeywordAttribute(kw, "pageData.q2", q2);
+              setKeywordAttribute(kw, "pageData.q3", q3);
+              setKeywordAttribute(kw, "pageData.q4", q4);
             })
           );
       }
@@ -314,13 +340,13 @@ const MainFunction = () => {
   }, [keywords]);
 
   return (
-    <div style={{ marginBottom: '20px' }}>
+    <div style={{ marginBottom: "20px" }}>
       <div
         style={{
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          marginBottom: "1rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
         <div>
@@ -331,15 +357,17 @@ const MainFunction = () => {
           <p>
             Credit Balance:
             {loadingCredits ? (
-              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>Loading...</span>
+              <span style={{ marginLeft: "1rem", fontWeight: "bold" }}>
+                Loading...
+              </span>
             ) : (
               <>
-                <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
-                  {_.get(credits, 'kw.remaining', 0)}
+                <span style={{ marginLeft: "1rem", fontWeight: "bold" }}>
+                  {_.get(credits, "kw.remaining", 0)}
                 </span>
-                {' / '}
-                <span style={{ fontWeight: 'bold' }}>
-                  {_.get(credits, 'kw.total', 0)}
+                {" / "}
+                <span style={{ fontWeight: "bold" }}>
+                  {_.get(credits, "kw.total", 0)}
                 </span>
               </>
             )}
@@ -347,32 +375,44 @@ const MainFunction = () => {
           <p>
             Time to Reset:
             {loadingCredits ? (
-              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>Loading...</span>
+              <span style={{ marginLeft: "1rem", fontWeight: "bold" }}>
+                Loading...
+              </span>
             ) : (
-              <span style={{ marginLeft: '1rem', fontWeight: 'bold' }}>
-                {_.get(credits, 'ttr', 'Fully charged')}
+              <span style={{ marginLeft: "1rem", fontWeight: "bold" }}>
+                {_.get(credits, "ttr", "Fully charged")}
               </span>
             )}
           </p>
           {!!loadingMessage && (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <ClipLoader size={10} color={'#123abc'} />
-              <p style={{ marginLeft: '8px', fontSize: '14px' }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <ClipLoader size={10} color={"#123abc"} />
+              <p style={{ marginLeft: "8px", fontSize: "14px" }}>
                 {loadingMessage}
               </p>
             </div>
           )}
         </div>
-        <Button
-          color='primary'
-          variant='contained'
-          onClick={() => setData(null)}
-        >
-          Reset
-        </Button>
+        <div>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => setByCategory((byCat) => !byCat)}
+          >
+            {byCategory ? 'Show All' : 'Show By Category'}
+          </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={() => setData(null)}
+            style={{ marginLeft: "1rem" }}
+          >
+            Reset
+          </Button>
+        </div>
       </div>
 
-      <ResultsDisplay />
+      <ResultsDisplay byCategory={byCategory} />
       {errors &&
         Object.entries(errors).map(([kw, error]) => (
           <p>
@@ -382,10 +422,10 @@ const MainFunction = () => {
       {keyword && (
         <div>
           <KeywordPageOneDisplay />
-          <div style={{ display: 'flex' }}>
-            <RelatedKeywordTable type='Low' />
-            <RelatedKeywordTable type='Medium' />
-            <RelatedKeywordTable type='Hard' />
+          <div style={{ display: "flex" }}>
+            <RelatedKeywordTable type="Low" />
+            <RelatedKeywordTable type="Medium" />
+            <RelatedKeywordTable type="Hard" />
           </div>
         </div>
       )}

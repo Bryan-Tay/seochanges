@@ -1,6 +1,6 @@
-import _ from 'lodash';
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import _ from "lodash";
+import React, { useState, useEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Table,
   TableCell,
@@ -9,15 +9,15 @@ import {
   TableRow,
   TableContainer,
   Button,
-} from '@material-ui/core';
-import { useKeywordsContext } from '../../../context/KeywordsContext';
+} from "@material-ui/core";
+import { useKeywordsContext } from "../../../context/KeywordsContext";
 
 const useStyles = makeStyles(() => ({
   root: {
-    backgroundColor: 'aliceblue',
-    margin: '0px 1px 20px 1px',
-    border: '1px solid cadetblue',
-    padding: '2px 10px',
+    backgroundColor: "aliceblue",
+    margin: "0px 1px 20px 1px",
+    border: "1px solid cadetblue",
+    padding: "2px 10px",
     flex: 1,
   },
 }));
@@ -26,17 +26,20 @@ const RelatedKeywordTable = ({ type }) => {
   const classes = useStyles();
   const { keywords, keyword, setData } = useKeywordsContext();
 
-  const types = ['low', 'medium', 'hard'];
   const [words, setWords] = useState([]);
 
   useEffect(() => {
     if (!keyword || !keyword.related) return;
 
     const related = keyword.related.slice(1).sort((a, b) => a.seo - b.seo);
-    const chunks = _.chunk(related, Math.ceil(related.length / 3));
+    const chunk = related.filter(
+      (kw) => kw.seoLevel === String(type).toLowerCase().trim()
+    );
 
-    const typeIndex = types.indexOf(String(type).toLowerCase());
-    const chunk = chunks[typeIndex] || [];
+    // const chunks = _.chunk(related, Math.ceil(related.length / 3));
+
+    // const typeIndex = types.indexOf(String(type).toLowerCase());
+    // const chunk = chunks[typeIndex] || [];
     setWords(chunk);
   }, [keyword]);
 
@@ -72,13 +75,14 @@ const RelatedKeywordTable = ({ type }) => {
                       <TableCell>{keyword.kw}</TableCell>
                       <TableCell>
                         {keywords.includes(keyword.kw) ? (
-                          <Button disabled variant='contained'>
+                          <Button disabled size="small" variant="contained">
                             Added!
                           </Button>
                         ) : (
                           <Button
-                            color='primary'
-                            variant='outlined'
+                            size="small"
+                            color="primary"
+                            variant="outlined"
                             onClick={() => onAdd(keyword.kw)}
                           >
                             Add
