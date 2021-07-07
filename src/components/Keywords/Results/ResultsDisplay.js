@@ -128,24 +128,55 @@ const ResultsDisplay = ({ byDifficulty }) => {
 
   const [lowData, setLowData] = useState({});
   const [mediumData, setMediumData] = useState({});
-  const [highData, sethighData] = useState({});
+  const [highData, setHighData] = useState({});
+  const [othersData, setOthersData] = useState({});
   useEffect(() => {
     let low = {};
     let medium = {};
     let high = {};
+    let others = {};
     for (let [kw, kwdata] of Object.entries(data)) {
-      if (kwdata.seoLevel === "low") {
+      if (
+        kwdata.fs &&
+        kwdata.df &&
+        kwdata.pageData.q2 &&
+        kwdata.fs * kwdata.df >= kwdata.pageData.q2
+      ) {
         low[kw] = kwdata;
-      } else if (kwdata.seoLevel === "medium") {
+      } else if (
+        kwdata.fs &&
+        kwdata.df &&
+        kwdata.pageData.q2 &&
+        kwdata.pageData.q3 &&
+        kwdata.fs * kwdata.df < kwdata.pageData.q2 &&
+        kwdata.fs * kwdata.df >= kwdata.pageData.q3
+      ) {
         medium[kw] = kwdata;
-      } else if (kwdata.seoLevel === "high") {
+      } else if (
+        kwdata.fs &&
+        kwdata.df &&
+        kwdata.pageData.q3 &&
+        kwdata.pageData.q4 &&
+        kwdata.fs * kwdata.df < kwdata.pageData.q3 &&
+        kwdata.fs * kwdata.df >= kwdata.pageData.q4
+      ) {
         high[kw] = kwdata;
+      } else {
+        others[kw] = kwdata;
       }
+      // if (kwdata.seoLevel === "low") {
+      //   low[kw] = kwdata;
+      // } else if (kwdata.seoLevel === "medium") {
+      //   medium[kw] = kwdata;
+      // } else if (kwdata.seoLevel === "high") {
+      //   high[kw] = kwdata;
+      // }
     }
 
     setLowData(low);
     setMediumData(medium);
-    sethighData(high);
+    setHighData(high);
+    setOthersData(others);
   }, [data]);
 
   const descendingComparator = (a, b, orderBy) => {
@@ -248,7 +279,12 @@ const ResultsDisplay = ({ byDifficulty }) => {
             <TableBody>
               {!byDifficulty ? (
                 stableSort(
-                  Object.entries({ ...lowData, ...mediumData, ...highData })
+                  Object.entries({
+                    ...lowData,
+                    ...mediumData,
+                    ...highData,
+                    ...othersData,
+                  })
                 ).map((kwdata, i) => (
                   <ResultsDisplayRow
                     key={kwdata.kw}
@@ -304,6 +340,24 @@ const ResultsDisplay = ({ byDifficulty }) => {
                           setKeyword={setKeyword}
                         />
                       ))}
+                    </>
+                  )}
+                  {Object.keys(othersData).length > 0 && (
+                    <>
+                      <ResultsDisplaySubheaderRow
+                        label="Others"
+                        data={othersData}
+                      />
+                      {stableSort(Object.entries(othersData)).map(
+                        (kwdata, i) => (
+                          <ResultsDisplayRow
+                            key={kwdata.kw}
+                            kwdata={kwdata}
+                            onDelete={onDelete}
+                            setKeyword={setKeyword}
+                          />
+                        )
+                      )}
                     </>
                   )}
                 </>

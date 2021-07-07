@@ -27,19 +27,16 @@ const RelatedKeywordTable = ({ type }) => {
   const { keywords, keyword, setData } = useKeywordsContext();
 
   const [words, setWords] = useState([]);
+  const types = ["low", "medium", "hard"];
 
   useEffect(() => {
     if (!keyword || !keyword.related) return;
 
     const related = keyword.related.slice(1).sort((a, b) => a.seo - b.seo);
-    const chunk = related.filter(
-      (kw) => kw.seoLevel === String(type).toLowerCase().trim()
-    );
+    const chunks = _.chunk(related, Math.ceil(related.length / 3));
 
-    // const chunks = _.chunk(related, Math.ceil(related.length / 3));
-
-    // const typeIndex = types.indexOf(String(type).toLowerCase());
-    // const chunk = chunks[typeIndex] || [];
+    const typeIndex = types.indexOf(String(type).toLowerCase());
+    const chunk = chunks[typeIndex] || [];
     setWords(chunk);
   }, [keyword]);
 

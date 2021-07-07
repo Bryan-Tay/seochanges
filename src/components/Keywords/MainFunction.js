@@ -51,7 +51,7 @@ const MainFunction = () => {
   };
 
   // Basically, the score from Mangools multiplied by the coefficients we set above.
-  const getFS = (da, pa, cf, tf, links, fb, lps, emd) => {
+  const getFS = (da, pa, cf, tf, links, fb, lps, emd, as = 1) => {
     let fs =
       (da * DA +
         pa * PA +
@@ -60,7 +60,8 @@ const MainFunction = () => {
         links * LINKS +
         fb * FB +
         lps * LPS) *
-      emd;
+      emd *
+      as;
     return fs;
   };
 
@@ -77,6 +78,26 @@ const MainFunction = () => {
     } else {
       return 0.5;
     }
+  };
+
+  // Function to get additional advantage score for keywords being found in sub-url
+  const getAdvantageScore = (url, kw) => {
+    const parsedKw = String(kw).replace(/[^a-z0-9]/gi, "");
+    const pathParts = String(url)
+      .replace("://", "")
+      .split("/")
+      .map((p) => p.replace(/[^a-z0-9]/gi, ""))
+      .filter((p) => p !== "");
+
+    let score = 1;
+    const scores = [1.5, 1.2, 1.15, 1.1, 1.05];
+    for (let i = 0; i < pathParts.length; i++) {
+      if (pathParts[i].includes(parsedKw)) {
+        score = scores[i];
+        break;
+      }
+    }
+    return score;
   };
 
   // Get page ranking based on domains
@@ -247,7 +268,8 @@ const MainFunction = () => {
               _.get(data[0], "items[0].m.majestic.v.ExtBackLinks", 0),
               _.get(data[0], "items[0].m.fb.v.l", 0),
               _.get(data[0], "items[0].m.rank.v.r", 0),
-              checkEMD(kw, url)
+              checkEMD(kw, url),
+              getAdvantageScore(url, kw)
             );
             setKeywordAttribute(kw, "fs", fs);
           })
@@ -295,7 +317,11 @@ const MainFunction = () => {
                     _.get(i, "m.majestic.v.ExtBackLinks", 0),
                     _.get(i, "m.fb.v.l", 0),
                     _.get(i, "m.rank.v.r", 0),
-                    checkEMD(kw, `https://mbg.com.sg:8081/https://${i.domain}/`)
+                    checkEMD(
+                      kw,
+                      `https://mbg.com.sg:8081/https://${i.domain}/`
+                    ),
+                    getAdvantageScore(i.url, kw)
                   )
                 ),
                 _.get(res2, "[0].items", []).map((i) =>
@@ -307,7 +333,11 @@ const MainFunction = () => {
                     _.get(i, "m.majestic.v.ExtBackLinks", 0),
                     _.get(i, "m.fb.v.l", 0),
                     _.get(i, "m.rank.v.r", 0),
-                    checkEMD(kw, `https://mbg.com.sg:8081/https://${i.domain}/`)
+                    checkEMD(
+                      kw,
+                      `https://mbg.com.sg:8081/https://${i.domain}/`
+                    ),
+                    getAdvantageScore(i.url, kw)
                   )
                 )
               ).sort((a, b) => b - a);
@@ -399,7 +429,7 @@ const MainFunction = () => {
             variant="contained"
             onClick={() => setByDifficulty((byCat) => !byCat)}
           >
-            {byDifficulty ? 'Show All' : 'Show By Difficulty'}
+            {byDifficulty ? "Show All" : "Show By Difficulty"}
           </Button>
           <Button
             color="primary"

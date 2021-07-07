@@ -1,4 +1,6 @@
+import _ from "lodash";
 import axios from "axios";
+import axiosRetry from "axios-retry";
 
 class KwApi {
   client;
@@ -25,6 +27,11 @@ class KwApi {
         );
       }
     );
+
+    axiosRetry(this.client, {
+      retryDelay: axiosRetry.exponentialDelay,
+      retries: 3,
+    });
   }
 
   getSearchVolume(keyword) {
