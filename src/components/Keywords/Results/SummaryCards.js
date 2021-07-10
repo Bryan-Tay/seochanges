@@ -29,7 +29,7 @@ const KpiCard = ({ label, value, tooltip = null }) => {
     <Tooltip title={tooltip || label}>
       <div className={classes.gridItem}>
         <p className={classes.kpiLabel}>{label}</p>
-        <p className={classes.kpiValue}>{value}</p>
+        <p className={classes.kpiValue}>{Math.round(value * 100) / 100}</p>
       </div>
     </Tooltip>
   );
