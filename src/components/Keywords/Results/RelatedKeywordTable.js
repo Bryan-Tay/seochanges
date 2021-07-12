@@ -86,8 +86,8 @@ const RelatedKeywordTable = ({ type }) => {
                           </Button>
                         )}
                       </TableCell>
-                      <TableCell>{keyword.sv}</TableCell>
-                      <TableCell>{keyword.seo}</TableCell>
+                      <TableCell>{keyword.search}</TableCell>
+                      <TableCell>{keyword.kd}</TableCell>
                     </TableRow>
                   ))
                 ) : (

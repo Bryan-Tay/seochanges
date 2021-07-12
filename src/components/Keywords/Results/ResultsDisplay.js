@@ -68,48 +68,28 @@ const ResultsDisplayRow = ({ kwdata, onDelete, setKeyword }) => {
           {kwdata.kw}
         </Button>
       </TableCell>
-      <TableCell>{kwdata.seo || "-"}</TableCell>
-      <TableCell>{kwdata.ranking || "-"}</TableCell>
-      <TableCell>{kwdata.volume || "-"}</TableCell>
+      <TableCell>{kwdata.kd || "-"}</TableCell>
+      <TableCell>{kwdata.rank || "-"}</TableCell>
+      <TableCell>{kwdata.search || "-"}</TableCell>
       <TableCell>
-        {kwdata.fs &&
-        kwdata.df &&
-        kwdata.pageData.q2 &&
-        kwdata.fs * kwdata.df >= kwdata.pageData.q2
+        {kwdata.score * kwdata.df >= kwdata.qs.q2 ? "✔" : ""}
+      </TableCell>
+      <TableCell>
+        {kwdata.score * kwdata.df < kwdata.qs.q2 &&
+        kwdata.score * kwdata.df >= kwdata.qs.q3
           ? "✔"
           : ""}
       </TableCell>
       <TableCell>
-        {kwdata.fs &&
-        kwdata.df &&
-        kwdata.pageData.q2 &&
-        kwdata.pageData.q3 &&
-        kwdata.fs * kwdata.df < kwdata.pageData.q2 &&
-        kwdata.fs * kwdata.df >= kwdata.pageData.q3
+        {kwdata.score * kwdata.df < kwdata.qs.q3 &&
+        kwdata.score * kwdata.df >= kwdata.qs.q4
           ? "✔"
           : ""}
       </TableCell>
       <TableCell>
-        {kwdata.fs &&
-        kwdata.df &&
-        kwdata.pageData.q3 &&
-        kwdata.pageData.q4 &&
-        kwdata.fs * kwdata.df < kwdata.pageData.q3 &&
-        kwdata.fs * kwdata.df >= kwdata.pageData.q4
-          ? "✔"
-          : ""}
+        {kwdata.score * kwdata.df < kwdata.qs.q4 ? "✔" : ""}
       </TableCell>
-      <TableCell>
-        {kwdata.fs &&
-        kwdata.df &&
-        kwdata.pageData.q4 &&
-        kwdata.fs * kwdata.df < kwdata.pageData.q4
-          ? "✔"
-          : ""}
-      </TableCell>
-      <TableCell>
-        {kwdata.pageData && kwdata.pageData.url ? kwdata.pageData.url : ""}
-      </TableCell>
+      <TableCell>{kwdata.path || ""}</TableCell>
       <TableCell style={{ maxWidth: "40px" }}>
         <IconButton aria-label="delete" onClick={() => onDelete(kwdata.kw)}>
           <DeleteIcon fontSize="small" />
@@ -136,41 +116,21 @@ const ResultsDisplay = ({ byDifficulty }) => {
     let high = {};
     let others = {};
     for (let [kw, kwdata] of Object.entries(data)) {
-      if (
-        kwdata.fs &&
-        kwdata.df &&
-        kwdata.pageData.q2 &&
-        kwdata.fs * kwdata.df >= kwdata.pageData.q2
-      ) {
+      if (kwdata.score * kwdata.df >= kwdata.qs.q2) {
         low[kw] = kwdata;
       } else if (
-        kwdata.fs &&
-        kwdata.df &&
-        kwdata.pageData.q2 &&
-        kwdata.pageData.q3 &&
-        kwdata.fs * kwdata.df < kwdata.pageData.q2 &&
-        kwdata.fs * kwdata.df >= kwdata.pageData.q3
+        kwdata.score * kwdata.df < kwdata.qs.q2 &&
+        kwdata.score * kwdata.df >= kwdata.qs.q3
       ) {
         medium[kw] = kwdata;
       } else if (
-        kwdata.fs &&
-        kwdata.df &&
-        kwdata.pageData.q3 &&
-        kwdata.pageData.q4 &&
-        kwdata.fs * kwdata.df < kwdata.pageData.q3 &&
-        kwdata.fs * kwdata.df >= kwdata.pageData.q4
+        kwdata.score * kwdata.df < kwdata.qs.q3 &&
+        kwdata.score * kwdata.df >= kwdata.qs.q4
       ) {
         high[kw] = kwdata;
       } else {
         others[kw] = kwdata;
       }
-      // if (kwdata.seoLevel === "low") {
-      //   low[kw] = kwdata;
-      // } else if (kwdata.seoLevel === "medium") {
-      //   medium[kw] = kwdata;
-      // } else if (kwdata.seoLevel === "high") {
-      //   high[kw] = kwdata;
-      // }
     }
 
     setLowData(low);
@@ -242,27 +202,27 @@ const ResultsDisplay = ({ byDifficulty }) => {
               <TableCell>Keyword</TableCell>
               <TableCell>
                 <TableSortLabel
-                  active={orderBy === "seo"}
-                  direction={orderBy === "seo" ? order : "asc"}
-                  onClick={() => handleRequestSort("seo")}
+                  active={orderBy === "kd"}
+                  direction={orderBy === "kd" ? order : "asc"}
+                  onClick={() => handleRequestSort("kd")}
                 >
                   Magic Score
                 </TableSortLabel>
               </TableCell>
-              <TableCell onClick={() => handleRequestSort("ranking")}>
+              <TableCell onClick={() => handleRequestSort("rank")}>
                 <TableSortLabel
-                  active={orderBy === "ranking"}
-                  direction={orderBy === "ranking" ? order : "asc"}
-                  onClick={() => handleRequestSort("ranking")}
+                  active={orderBy === "rank"}
+                  direction={orderBy === "rank" ? order : "asc"}
+                  onClick={() => handleRequestSort("rank")}
                 >
                   Current Rank
                 </TableSortLabel>
               </TableCell>
-              <TableCell onClick={() => handleRequestSort("volume")}>
+              <TableCell onClick={() => handleRequestSort("search")}>
                 <TableSortLabel
-                  active={orderBy === "volume"}
-                  direction={orderBy === "volume" ? order : "asc"}
-                  onClick={() => handleRequestSort("volume")}
+                  active={orderBy === "search"}
+                  direction={orderBy === "search" ? order : "asc"}
+                  onClick={() => handleRequestSort("search")}
                 >
                   Search Volume
                 </TableSortLabel>

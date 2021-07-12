@@ -60,7 +60,7 @@ const SummaryCards = ({ low, medium, high }) => {
   }, [TotalNewTraffic]);
 
   const getEstimatedVolume = (batch) => {
-    return Object.values(batch).reduce((acc, curr) => acc + curr.volume, 0);
+    return Object.values(batch).reduce((acc, curr) => acc + curr.search, 0);
   };
 
   const getTotalNewTraffic = (batch, factor) => {
