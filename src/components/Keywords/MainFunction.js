@@ -9,6 +9,7 @@ import CustomPrompt from "./Misc/CustomPrompt";
 import KeywordPageOneDisplay from "./Results/KeywordPageOneDisplay";
 import RelatedKeywordTable from "./Results/RelatedKeywordTable";
 import ResultsDisplay from "./Results/ResultsDisplay";
+import { getPageSpeedInsights } from "../../services/pagespeed-insights";
 
 const MainFunction = () => {
   const {
@@ -19,7 +20,6 @@ const MainFunction = () => {
     keywords,
     keyword,
     errors,
-    setErrors,
     fulldata,
     setFulldata,
     loadingMessage,
@@ -31,6 +31,7 @@ const MainFunction = () => {
   const [byDifficulty, setByDifficulty] = useState(false);
 
   const handleKeywordResponse = (kw, data) => {
+    // console.log(data);
     setLoadingMessage(`Storing data for ${kw} in cache`);
     data["expirationDate"] = new Date().getTime() + 1000 * 60 * 60 * 24 * 14; // 14 days
     localStorage.setItem(`${url}-${kw}`, JSON.stringify(data));
@@ -41,6 +42,14 @@ const MainFunction = () => {
     localStorage.removeItem(`${url}-${kw}`);
     console.log(error);
   };
+
+  const [pageSpeedInsigts, setPageSpeedInsigts] = useState();
+  useEffect(() => {
+    if (!url) return;
+    getPageSpeedInsights(url).then(setPageSpeedInsigts);
+  }, [url]);
+
+  /** ENDTEST */
 
   useEffect(() => {
     if (!keywords || (Array.isArray(keywords) && !keywords.length)) return;
@@ -61,6 +70,7 @@ const MainFunction = () => {
           .catch((err) => handleKeywordError(kw, err));
       }
     }
+    // eslint-disable-next-line
   }, [keywords]);
 
   useEffect(() => {
@@ -69,6 +79,7 @@ const MainFunction = () => {
     if (Object.keys(fulldata).length === keywords.length) {
       setLoadingMessage("");
     }
+    // eslint-disable-next-line
   }, [fulldata]);
 
   const [loadingCredits, setLoadingCredits] = useState(true);
@@ -83,6 +94,7 @@ const MainFunction = () => {
 
   useEffect(() => {
     getCredits();
+    // eslint-disable-next-line
   }, []);
 
   return (

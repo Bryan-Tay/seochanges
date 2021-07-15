@@ -76,13 +76,13 @@ const mapRelatedKeyword = (data) => {
   kwdata.ev = kwdata.evh.reduce((acc, curr) => acc + curr, 0) / 12.0;
 
   return {
-    kw: kwdata.kw || 0,
-    search: kwdata.sv || 0,
+    kw: kwdata.kw,
+    search: Math.round((kwdata.sv || 0) * 100) / 100,
     evh: kwdata.evh || [],
-    ev: kwdata.ev || 0,
-    cpc: kwdata.cpc || 0,
-    ppc: kwdata.ppc || 0,
-    kd: kwdata.seo || 0,
+    ev: Math.round((kwdata.ev || 0) * 100) / 100,
+    cpc: Math.round((kwdata.cpc || 0) * 100) / 100,
+    ppc: Math.round((kwdata.ppc || 0) * 100) / 100,
+    kd: Math.round((kwdata.seo || 0) * 100) / 100,
   };
 };
 
@@ -113,11 +113,15 @@ const mapRelevantPage = (url, kw, data) => {
   };
 };
 
-const getRanking = (items, url, df, offset) => {
+const getRanking = (items, url, kw, df, offset) => {
   const domains = items.map((item) => item.domain);
   for (let i = 0; i < domains.length; i++) {
     if (url.includes(domains[i])) {
-      return { df, rank: String(i + offset) };
+      return {
+        df,
+        rank: String(i + offset),
+        ...mapRelevantPage(items[i].url, kw, items[i]),
+      };
     }
   }
   return false;
@@ -165,8 +169,17 @@ const getPageInfo = async (url, keyword, location) => {
     let pageQuery = i > 0 ? `&page=${i}` : "";
     if (rank === false) {
       response = await mangools.get(apiUrl + pageQuery);
-      rank = getRanking(response.data[0].items, url, dfs[i], i * 10 + 1);
-      items = items.length === 0 ? response.data[0].items : items;
+      rank = getRanking(
+        response.data[0].items,
+        url,
+        keyword,
+        dfs[i],
+        i * 10 + 1
+      );
+      items =
+        items.length === 0
+          ? response.data[0].items.filter((item) => !!item.url)
+          : items;
       scores = getPageScores(response);
     } else if (i < 2) {
       response = await mangools.get(apiUrl + pageQuery);
@@ -178,8 +191,12 @@ const getPageInfo = async (url, keyword, location) => {
 
   return {
     df: rank ? rank.df : 1,
+    url: rank ? rank.url : "-",
+    path: rank ? rank.path : "-",
     rank: rank ? rank.rank : "50+",
-    items: items.map((item) => mapRelevantPage(url, keyword, item)),
+    items: items
+      .map((item) => mapRelevantPage(url, keyword, item))
+      .filter((item) => !!item.url),
     qs: {
       q1: Math.round(_.mean(scores.slice(0, 5)) * 100) / 100,
       q2: Math.round(_.mean(scores.slice(5, 10)) * 100) / 100,

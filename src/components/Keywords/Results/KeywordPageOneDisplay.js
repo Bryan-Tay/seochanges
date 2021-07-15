@@ -1,4 +1,3 @@
-import _ from "lodash";
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
@@ -23,6 +22,8 @@ const useStyles = makeStyles(() => ({
 const KeywordPageOneDisplay = () => {
   const classes = useStyles();
   const { keyword, setKeyword } = useKeywordsContext();
+
+  console.log(keyword);
 
   return (
     <div className={classes.root}>

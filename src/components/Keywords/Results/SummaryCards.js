@@ -42,6 +42,14 @@ const SummaryCards = ({ low, medium, high }) => {
   const [TotalNewTraffic, setTotalNewTraffic] = useState(0);
   const [EstimatedConversion, setEstimatedConversion] = useState(0);
 
+  const getEstimatedVolume = (batch) => {
+    return Object.values(batch).reduce((acc, curr) => acc + curr.search, 0);
+  };
+
+  const getTotalNewTraffic = (batch, factor) => {
+    return getEstimatedVolume(batch) * factor * 0.14 * 0.05;
+  };
+
   useEffect(() => {
     setEstimatedVolume(
       getEstimatedVolume(low) +
@@ -53,27 +61,21 @@ const SummaryCards = ({ low, medium, high }) => {
         getTotalNewTraffic(medium, 0.3) +
         getTotalNewTraffic(high, 0.3)
     );
+    // eslint-disable-next-line
   }, [low, medium, high]);
 
   useEffect(() => {
     setEstimatedConversion(TotalNewTraffic * 0.05);
+    // eslint-disable-next-line
   }, [TotalNewTraffic]);
-
-  const getEstimatedVolume = (batch) => {
-    return Object.values(batch).reduce((acc, curr) => acc + curr.search, 0);
-  };
-
-  const getTotalNewTraffic = (batch, factor) => {
-    return getEstimatedVolume(batch) * factor;
-  };
 
   return (
     <Grid container spacing={8} className={classes.gridContainer}>
       <Grid item>
         <KpiCard
-          label="EV"
+          label="ESV"
           value={EstimatedVolume}
-          tooltip="Estimated Click-Through Volume"
+          tooltip="Estimated Search Volume"
         />
       </Grid>
       <Grid item>

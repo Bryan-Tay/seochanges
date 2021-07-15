@@ -11,8 +11,8 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
+  Tooltip,
 } from "@material-ui/core";
-import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { Controller, useForm } from "react-hook-form";
@@ -43,9 +43,12 @@ const ResultsDisplaySubheaderRow = ({ label, data }) => (
           fontWeight: "bold",
         }}
       >
-        {Object.values(data).reduce((acc, curr) => acc + (curr.volume || 0), 0)}
+        {Object.values(data).reduce((acc, curr) => acc + (curr.search || 0), 0)}
       </span>
     </TableCell>
+    <TableCell></TableCell>
+    <TableCell></TableCell>
+    <TableCell></TableCell>
     <TableCell></TableCell>
     <TableCell></TableCell>
     <TableCell></TableCell>
@@ -71,6 +74,9 @@ const ResultsDisplayRow = ({ kwdata, onDelete, setKeyword }) => {
       <TableCell>{kwdata.kd || "-"}</TableCell>
       <TableCell>{kwdata.rank || "-"}</TableCell>
       <TableCell>{kwdata.search || "-"}</TableCell>
+      <TableCell>{kwdata.ev || "-"}</TableCell>
+      <TableCell>{kwdata.cpc || "-"}</TableCell>
+      <TableCell>{kwdata.ppc || "-"}</TableCell>
       <TableCell>
         {kwdata.score * kwdata.df >= kwdata.qs.q2 ? "✔" : ""}
       </TableCell>
@@ -226,6 +232,39 @@ const ResultsDisplay = ({ byDifficulty }) => {
                 >
                   Search Volume
                 </TableSortLabel>
+              </TableCell>
+              <TableCell onClick={() => handleRequestSort("ev")}>
+                <Tooltip title="Estimated Visits Per Month (last 12 months)">
+                  <TableSortLabel
+                    active={orderBy === "ev"}
+                    direction={orderBy === "ev" ? order : "asc"}
+                    onClick={() => handleRequestSort("ev")}
+                  >
+                    EV
+                  </TableSortLabel>
+                </Tooltip>
+              </TableCell>
+              <TableCell onClick={() => handleRequestSort("cpc")}>
+                <Tooltip title="Average Cost Per Click">
+                  <TableSortLabel
+                    active={orderBy === "cpc"}
+                    direction={orderBy === "cpc" ? order : "asc"}
+                    onClick={() => handleRequestSort("cpc")}
+                  >
+                    CPC
+                  </TableSortLabel>
+                </Tooltip>
+              </TableCell>
+              <TableCell onClick={() => handleRequestSort("ppc")}>
+                <Tooltip title="Pay Per Click">
+                  <TableSortLabel
+                    active={orderBy === "ppc"}
+                    direction={orderBy === "ppc" ? order : "asc"}
+                    onClick={() => handleRequestSort("ppc")}
+                  >
+                    PPC
+                  </TableSortLabel>
+                </Tooltip>
               </TableCell>
               <TableCell>4 - 6 Mths</TableCell>
               <TableCell>7 - 9 Mths</TableCell>

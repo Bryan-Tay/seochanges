@@ -32,12 +32,13 @@ const RelatedKeywordTable = ({ type }) => {
   useEffect(() => {
     if (!keyword || !keyword.related) return;
 
-    const related = keyword.related.slice(1).sort((a, b) => a.seo - b.seo);
+    const related = keyword.related.slice(1).sort((a, b) => a.kd - b.kd);
     const chunks = _.chunk(related, Math.ceil(related.length / 3));
 
     const typeIndex = types.indexOf(String(type).toLowerCase());
     const chunk = chunks[typeIndex] || [];
     setWords(chunk);
+    // eslint-disable-next-line
   }, [keyword]);
 
   const onAdd = (kw) => {

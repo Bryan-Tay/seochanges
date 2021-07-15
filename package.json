@@ -61,5 +61,8 @@
     "license": "ISC",
     "bugs": {
         "url": "https://github.com/mediaoneseo/mediaoneapp/issues"
+    },
+    "devDependencies": {
+        "lighthouse": "^8.1.0"
     }
 }
