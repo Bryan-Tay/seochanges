@@ -3,13 +3,14 @@ import { Button } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
 import { useKeywordsContext } from "../../context/KeywordsContext";
-import CreditsApi from "../../services/credits";
+import { getCredits } from "../../services/custom";
 import { getKeywordData } from "../../services/mangools";
 import CustomPrompt from "./Misc/CustomPrompt";
 import KeywordPageOneDisplay from "./Results/KeywordPageOneDisplay";
 import RelatedKeywordTable from "./Results/RelatedKeywordTable";
 import ResultsDisplay from "./Results/ResultsDisplay";
 import { getPageSpeedInsights } from "../../services/pagespeed-insights";
+import SearchEngineSimulator from "./Results/SearchEngineSimulator";
 
 const MainFunction = () => {
   const {
@@ -31,7 +32,6 @@ const MainFunction = () => {
   const [byDifficulty, setByDifficulty] = useState(false);
 
   const handleKeywordResponse = (kw, data) => {
-    // console.log(data);
     setLoadingMessage(`Storing data for ${kw} in cache`);
     data["expirationDate"] = new Date().getTime() + 1000 * 60 * 60 * 24 * 14; // 14 days
     localStorage.setItem(`${url}-${kw}`, JSON.stringify(data));
@@ -43,13 +43,11 @@ const MainFunction = () => {
     console.log(error);
   };
 
-  const [pageSpeedInsigts, setPageSpeedInsigts] = useState();
-  useEffect(() => {
-    if (!url) return;
-    getPageSpeedInsights(url).then(setPageSpeedInsigts);
-  }, [url]);
-
-  /** ENDTEST */
+  // const [pageSpeedInsigts, setPageSpeedInsigts] = useState();
+  // useEffect(() => {
+  //   if (!url) return;
+  //   getPageSpeedInsights(url).then(setPageSpeedInsigts);
+  // }, [url]);
 
   useEffect(() => {
     if (!keywords || (Array.isArray(keywords) && !keywords.length)) return;
@@ -83,35 +81,38 @@ const MainFunction = () => {
   }, [fulldata]);
 
   const [loadingCredits, setLoadingCredits] = useState(true);
-  const getCredits = () => {
-    const creditsApi = new CreditsApi();
+  const getCreditBalance = () => {
     setLoadingCredits(true);
-    creditsApi.getCredits().then((res) => {
+    getCredits().then((res) => {
       setCredits(res.credits);
       setLoadingCredits(false);
     });
   };
 
   useEffect(() => {
-    getCredits();
+    getCreditBalance();
+    getPageSpeedInsights(url).then(console.log).catch(console.error);
     // eslint-disable-next-line
   }, []);
 
   return (
     <div style={{ marginBottom: "20px" }}>
+      <h2>
+        Checking {url} in {locationData.sem.toUpperCase()}
+      </h2>
+      <SearchEngineSimulator />
       <div
         style={{
-          marginBottom: "1rem",
           display: "flex",
+          marginTop: "2rem",
+          marginBottom: "1rem",
           alignItems: "center",
           justifyContent: "space-between",
         }}
       >
         <div>
           <CustomPrompt />
-          <h2>
-            Checking {url} in {locationData.sem.toUpperCase()}
-          </h2>
+
           <p>
             Credit Balance:
             {loadingCredits ? (
