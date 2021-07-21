@@ -74,8 +74,8 @@ const ResultsDisplayRow = ({ kwdata, onDelete, setKeyword }) => {
       <TableCell>{kwdata.kd || "-"}</TableCell>
       <TableCell>{kwdata.rank || "-"}</TableCell>
       <TableCell>{kwdata.search || "-"}</TableCell>
-      <TableCell>{kwdata.ev || "-"}</TableCell>
-      <TableCell>{kwdata.cpc || "-"}</TableCell>
+      <TableCell>{parseFloat(kwdata.ev).toFixed(0) || "-"}</TableCell>
+      <TableCell>{parseFloat(kwdata.cpc).toFixed(2) || "-"}</TableCell>
       <TableCell>{kwdata.ppc || "-"}</TableCell>
       <TableCell>
         {kwdata.score * kwdata.df >= kwdata.qs.q2 ? "✔" : ""}

@@ -1,4 +1,4 @@
-import { Grid, makeStyles, Tooltip } from "@material-ui/core";
+import { Grid, makeStyles, Slider, Tooltip } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 
 const useStyles = makeStyles(() => ({
@@ -41,13 +41,15 @@ const SummaryCards = ({ low, medium, high }) => {
   const [EstimatedVolume, setEstimatedVolume] = useState(0);
   const [TotalNewTraffic, setTotalNewTraffic] = useState(0);
   const [EstimatedConversion, setEstimatedConversion] = useState(0);
+  const [EstimatedConversionFactor, setEstimatedConversionFactor] =
+    useState(0.05);
 
   const getEstimatedVolume = (batch) => {
     return Object.values(batch).reduce((acc, curr) => acc + curr.search, 0);
   };
 
   const getTotalNewTraffic = (batch, factor) => {
-    return getEstimatedVolume(batch) * factor * 0.14 * 0.05;
+    return getEstimatedVolume(batch) * factor * 0.14 * 0.5;
   };
 
   useEffect(() => {
@@ -65,9 +67,13 @@ const SummaryCards = ({ low, medium, high }) => {
   }, [low, medium, high]);
 
   useEffect(() => {
-    setEstimatedConversion(TotalNewTraffic * 0.05);
+    setEstimatedConversion(TotalNewTraffic * EstimatedConversionFactor);
     // eslint-disable-next-line
-  }, [TotalNewTraffic]);
+  }, [TotalNewTraffic, EstimatedConversionFactor]);
+
+  const formatSliderText = (value) => {
+    return `${Math.round(value * 1000) / 10}%`;
+  };
 
   return (
     <Grid container spacing={8} className={classes.gridContainer}>
@@ -86,11 +92,29 @@ const SummaryCards = ({ low, medium, high }) => {
         />
       </Grid>
       <Grid item>
-        <KpiCard
-          label="EC"
-          value={EstimatedConversion}
-          tooltip="Estimated Conversion"
-        />
+        <div style={{ display: "flex", height: "100%" }}>
+          <KpiCard
+            label="EC"
+            value={EstimatedConversion}
+            tooltip="Estimated Conversion"
+          />
+          <Slider
+            min={0.01}
+            max={0.05}
+            step={0.005}
+            defaultValue={0.05}
+            orientation="vertical"
+            valueLabelDisplay="auto"
+            getAriaValueText={formatSliderText}
+            valueLabelFormat={formatSliderText}
+            aria-labelledby="discrete-slider-small-steps"
+            onChange={(e, val) => setEstimatedConversionFactor(val)}
+            marks={[
+              { value: 0.01, label: "1%" },
+              { value: 0.05, label: "5%" },
+            ]}
+          />
+        </div>
       </Grid>
     </Grid>
   );
