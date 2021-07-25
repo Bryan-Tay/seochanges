@@ -180,6 +180,13 @@ const MainFunction = () => {
             <RelatedKeywordTable type="Medium" />
             <RelatedKeywordTable type="Hard" />
           </div>
+          <p>
+            <b>Disclaimer:</b>
+            <br />
+            Categorisation of related keywords and main sheet for competition
+            levels vary because app further computes localised aspects of the
+            keyword in relation to the target URL.
+          </p>
         </div>
       )}
     </div>
