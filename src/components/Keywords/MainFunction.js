@@ -9,8 +9,8 @@ import CustomPrompt from "./Misc/CustomPrompt";
 import KeywordPageOneDisplay from "./Results/KeywordPageOneDisplay";
 import RelatedKeywordTable from "./Results/RelatedKeywordTable";
 import ResultsDisplay from "./Results/ResultsDisplay";
-import { getPageSpeedInsights } from "../../services/pagespeed-insights";
 import SearchEngineSimulator from "./Results/SearchEngineSimulator";
+import PageSpeedInsights from "./Results/PageSpeedInsights";
 
 const MainFunction = () => {
   const {
@@ -42,12 +42,6 @@ const MainFunction = () => {
     localStorage.removeItem(`${url}-${kw}`);
     console.log(error);
   };
-
-  // const [pageSpeedInsigts, setPageSpeedInsigts] = useState();
-  // useEffect(() => {
-  //   if (!url) return;
-  //   getPageSpeedInsights(url).then(setPageSpeedInsigts);
-  // }, [url]);
 
   useEffect(() => {
     if (!keywords || (Array.isArray(keywords) && !keywords.length)) return;
@@ -91,7 +85,6 @@ const MainFunction = () => {
 
   useEffect(() => {
     getCreditBalance();
-    getPageSpeedInsights(url).then(console.log).catch(console.error);
     // eslint-disable-next-line
   }, []);
 
@@ -100,6 +93,7 @@ const MainFunction = () => {
       <h2>
         Checking {url} in {locationData.sem.toUpperCase()}
       </h2>
+      <PageSpeedInsights />
       <SearchEngineSimulator />
       <div
         style={{
