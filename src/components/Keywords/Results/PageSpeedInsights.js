@@ -80,10 +80,10 @@ const PageSpeedDevice = ({ data }) => {
             <TableCell
               className={styles.tableCell}
               style={{
-                color: COLORS[_.get(data, "web_vitals.lpc", "default")],
+                color: COLORS[_.get(data, "web_vitals.lcp", "default")],
               }}
             >
-              {_.get(data, "web_vitals.lpc", <CircularProgress size={16} />)}
+              {_.get(data, "web_vitals.lcp", <CircularProgress size={16} />)}
             </TableCell>
           </TableRow>
           <TableRow>
