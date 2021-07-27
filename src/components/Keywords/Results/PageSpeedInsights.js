@@ -124,10 +124,8 @@ const PageSpeedInsights = () => {
   } = useKeywordsContext();
 
   const [mobile, setMobile] = useState(null);
-  const [loadingMobile, setLoadingMobile] = useState(true);
 
   const [desktop, setDesktop] = useState(null);
-  const [loadingDesktop, setLoadingDesktop] = useState(true);
 
   useEffect(() => {
     if (!url) return;
@@ -135,23 +133,19 @@ const PageSpeedInsights = () => {
     getPageSpeedInsights(url, "mobile")
       .then((data) => {
         setMobile(data);
-        setLoadingMobile(false);
       })
       .catch((error) => {
         console.log(error);
         setMobile(null);
-        setLoadingMobile(false);
       });
     // get page speed insights for desktop
     getPageSpeedInsights(url, "desktop")
       .then((data) => {
         setDesktop(data);
-        setLoadingDesktop(false);
       })
       .catch((error) => {
         console.log(error);
         setDesktop(null);
-        setLoadingDesktop(false);
       });
   }, [url]);
 

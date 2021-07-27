@@ -49,7 +49,12 @@ const checkEMD = (tempURL, keyword) => {
   return match.includes(keyword) || keyword.includes(match) ? 1.5 : 0.5;
 };
 
-// Function to get additional advantage score for keywords being found in sub-url
+/**
+ * Function to get additional advantage score for keywords being found in sub-url
+ * @param {string} url
+ * @param {string} kw
+ * @returns score depending on kw position inside url
+ */
 const getAdvantageScore = (url, kw) => {
   let urldata = new URL(url);
   const parsedKw = String(kw).replace(/[^a-z0-9]/gi, "");
@@ -70,6 +75,11 @@ const getAdvantageScore = (url, kw) => {
   return score;
 };
 
+/**
+ * Parse kwfinder response and return a set of parameters and calculations for the keyword
+ * @param {kwfinder response} data
+ * @returns
+ */
 const mapRelatedKeyword = (data) => {
   let kwdata = data;
   kwdata.evh = kwdata.msv.slice(-12).map((item) => item[2] || 0);
@@ -86,6 +96,13 @@ const mapRelatedKeyword = (data) => {
   };
 };
 
+/**
+ * Parse kwfinder response and returns a set of parameters and calculations for the page
+ * @param {string} url
+ * @param {string} kw
+ * @param {kwfinder response} data
+ * @returns
+ */
 const mapRelevantPage = (url, kw, data) => {
   const urldata = new URL(url);
   const emd = checkEMD(url, kw);
@@ -113,6 +130,15 @@ const mapRelevantPage = (url, kw, data) => {
   };
 };
 
+/**
+ * Gets the current position of the url in the search results
+ * @param {kwfinder items response} items
+ * @param {string} url
+ * @param {string} kw
+ * @param {number} df
+ * @param {number} offset
+ * @returns
+ */
 const getRanking = (items, url, kw, df, offset) => {
   const domains = items.map((item) => item.domain);
   for (let i = 0; i < domains.length; i++) {
@@ -127,6 +153,13 @@ const getRanking = (items, url, kw, df, offset) => {
   return false;
 };
 
+/**
+ * Retrieve the related keywords for a given keyword and location
+ * @param {string} url
+ * @param {string} keyword
+ * @param {number} location
+ * @returns
+ */
 const getRelatedKeywords = async (url, keyword, location) => {
   const relatedKeywords = await mangools.get(
     `/related-keywords?kw=${keyword}&location_id=${location}`
@@ -140,6 +173,13 @@ const getRelatedKeywords = async (url, keyword, location) => {
   return { ...kwdata, related };
 };
 
+/**
+ * Retrieve relevant page information for a given url, keyword and location
+ * @param {string} url
+ * @param {string} keyword
+ * @param {number} location
+ * @returns
+ */
 const getRelevantPageInfo = async (url, keyword, location) => {
   const relevantPage = await mangools.get(
     `/serps?location_id=${location}&kw=${url + " " + keyword}`
@@ -206,6 +246,13 @@ const getPageInfo = async (url, keyword, location) => {
   };
 };
 
+/**
+ * Collect relevant page info, related keyword and page info for a given url, keyword and location
+ * @param {string} url
+ * @param {string} keyword
+ * @param {number} location
+ * @returns
+ */
 export const getKeywordData = async (url, keyword, location) => {
   const relevantPageInfo = await getRelevantPageInfo(url, keyword, location);
   const relatedKeywords = await getRelatedKeywords(url, keyword, location);

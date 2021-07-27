@@ -95,7 +95,7 @@ const ResultPanel = ({ data }) => {
       <Grid item xs={6} classnames={styles.gridItem}>
         <Typography classnames={styles.itemTitle}>Two Word Phrases</Typography>
         <ul>
-          {data.twoWordPhrases.slice(0, top).map((item, i) => (
+          {(data.twoWordPhrases || []).slice(0, top).map((item, i) => (
             <li key={i}>
               {item.word} | {item.counter}
             </li>
@@ -107,7 +107,7 @@ const ResultPanel = ({ data }) => {
           Three Word Phrases
         </Typography>
         <ul>
-          {data.threeWordPhrases.slice(0, top).map((item, i) => (
+          {(data.threeWordPhrases || []).slice(0, top).map((item, i) => (
             <li key={i}>
               {item.word} | {item.counter}
             </li>

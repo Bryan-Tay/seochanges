@@ -107,7 +107,12 @@ const ResultsDisplayRow = ({ kwdata, onDelete, setKeyword }) => {
 
 const ResultsDisplay = ({ byDifficulty }) => {
   const { control, handleSubmit, setValue } = useForm();
-  const { fulldata: data, setData, setKeyword } = useKeywordsContext();
+  const {
+    data: { url },
+    fulldata: data,
+    setData,
+    setKeyword,
+  } = useKeywordsContext();
 
   const [order, setOrder] = useState(null);
   const [orderBy, setOrderBy] = useState(null);
@@ -192,11 +197,12 @@ const ResultsDisplay = ({ byDifficulty }) => {
   };
 
   const onDelete = (keyword) => {
-    setKeyword(null);
+    localStorage.removeItem(`${url}-${keyword}`);
     setData((current) => ({
       ...current,
       keywords: current.keywords.filter((kw) => kw !== keyword),
     }));
+    setKeyword(null);
   };
 
   return (

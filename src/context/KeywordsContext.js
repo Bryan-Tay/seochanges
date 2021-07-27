@@ -5,12 +5,7 @@ const KeywordsContext = createContext(null);
 export const useKeywordsContext = () => useContext(KeywordsContext);
 
 const KeywordsProvider = ({ children }) => {
-  const [data, setData] = useState({
-    url: "https://mediaonemarketing.com.sg/",
-    location: "Singapore",
-    locationData: countries.Singapore,
-    keywords: ["digital marketing", "marketing online", "help on marketing"],
-  });
+  const [data, setData] = useState(null);
 
   const [errors, setErrors] = useState({});
   const [fulldata, setFulldata] = useState({});

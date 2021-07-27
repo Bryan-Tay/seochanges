@@ -44,7 +44,18 @@ const MainFunction = () => {
   };
 
   useEffect(() => {
-    if (!keywords || (Array.isArray(keywords) && !keywords.length)) return;
+    if (!keywords || (Array.isArray(keywords) && !keywords.length)) {
+      setFulldata({});
+    } else {
+      setFulldata((current) => {
+        Object.keys(current)
+          .filter((key) => keywords.indexOf(key) > -1)
+          .reduce((obj, key) => {
+            obj[key] = current[key] || {};
+            return obj;
+          }, {});
+      });
+    }
 
     for (let kw of keywords) {
       setLoadingMessage(`Getting data for ${kw}`);
@@ -174,12 +185,6 @@ const MainFunction = () => {
         ))}
       {keyword && (
         <div>
-          <KeywordPageOneDisplay />
-          <div style={{ display: "flex" }}>
-            <RelatedKeywordTable type="Low" />
-            <RelatedKeywordTable type="Medium" />
-            <RelatedKeywordTable type="Hard" />
-          </div>
           <p>
             <b>Disclaimer:</b>
             <br />
@@ -187,6 +192,12 @@ const MainFunction = () => {
             levels vary because app further computes localised aspects of the
             keyword in relation to the target URL.
           </p>
+          <KeywordPageOneDisplay />
+          <div style={{ display: "flex" }}>
+            <RelatedKeywordTable type="Low" />
+            <RelatedKeywordTable type="Medium" />
+            <RelatedKeywordTable type="Hard" />
+          </div>
         </div>
       )}
     </div>
