@@ -1,62 +1,58 @@
-import React, { useState } from 'react';
+import React from "react";
+import theme from "./theme";
+import Login from "./routes/login";
+import AuthProvider, { useAuth } from "./hooks/useAuth";
 import {
   BrowserRouter as Router,
-  Route,
   Switch,
+  Route,
   Redirect,
-} from 'react-router-dom';
-import './App.css';
+} from "react-router-dom";
+import { Container, ThemeProvider } from "@material-ui/core";
+import NavBar from "./components/NavBar";
+import KeywordTimelineAnalysis from "./routes/keyword-timeline-analysis";
+import HomePage from "./routes/homepage";
+import KeywordsProvider from "./hooks/useKeywords";
 
-import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { cyan, red } from '@material-ui/core/colors';
-import { Container } from '@material-ui/core';
-import NavBar from './components/NavBar';
-import Login from './components/Login';
+import "./App.css";
 
-import UserContext from './context/UserContext';
-import KeywordsProvider from './context/KeywordsContext';
-import KeywordTimelineAnalysis from './components/Keywords/KeywordTimelineAnalysis';
+const MainContainer = () => {
+  const { user } = useAuth();
 
-const theme = createMuiTheme({
-  palette: {
-    primary: cyan,
-    secondary: red,
-  },
-});
+  if (!user) {
+    return <Login />;
+  }
 
-function App() {
-  ///// User Context /////
-  const [user, setUser] = useState(sessionStorage.getItem('user') || null);
-
-  ///// MainFunction /////
   return (
     <Router>
-      <UserContext.Provider value={{ user, setUser }}>
-        <KeywordsProvider>
-          <ThemeProvider theme={theme}>
-            <NavBar />
-            <Container className='App' maxWidth='xl'>
-              {user === null ? <Redirect to='/app' /> : ''}
-              <Switch>
-                <Route path='/app/keyword-timeline-analysis'>
-                  <KeywordTimelineAnalysis />
-                </Route>
-                <Route exact path='/app'>
-                  <Login />
-                </Route>
-                <Route path='/*'>
-                  <Redirect to='/app' />
-                </Route>
-              </Switch>
-            </Container>
-          </ThemeProvider>
-        </KeywordsProvider>
-      </UserContext.Provider>
-      <footer>
-        <a href='https://mediaonemarketing.com.sg/'>Mediaone Business Group</a>
-      </footer>
+      <NavBar />
+      <Container maxWidth="xl">
+        <Switch>
+          <Route exact path="/app">
+            <HomePage />
+          </Route>
+          <Route exact path="/app/keyword-timeline-analysis">
+            <KeywordTimelineAnalysis />
+          </Route>
+          <Route path="/*">
+            <Redirect to="/app" />
+          </Route>
+        </Switch>
+      </Container>
     </Router>
   );
-}
+};
+
+const App = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        <KeywordsProvider>
+          <MainContainer />
+        </KeywordsProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+};
 
 export default App;

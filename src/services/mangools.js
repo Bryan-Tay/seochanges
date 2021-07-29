@@ -262,6 +262,7 @@ export const getKeywordData = async (url, keyword, location) => {
     ...relevantPageInfo,
     ...relatedKeywords,
     ...pageInfo,
+    kw: keyword,
   };
 };
 
