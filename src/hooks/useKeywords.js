@@ -46,11 +46,12 @@ const KeywordsProvider = ({ children }) => {
     }
   }, [url, location, locationData, keywords]);
 
-  const reset = () => {
-    setUrl(null);
-    setLocation(null);
-    setLocationData(null);
-    setKeywords(null);
+  const reset = async () => {
+    await setInitialized(false);
+    await setLocationData(null);
+    await setLocation(null);
+    await setKeywords(null);
+    await setUrl(null);
   };
 
   const submitForm = ({ url, location, keywords }) => {

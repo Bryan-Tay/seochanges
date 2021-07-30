@@ -26,24 +26,10 @@ const ResultsTableRow = ({ kwdata }) => {
       <TableCell>{parseFloat(kwdata.ev).toFixed(0) || "-"}</TableCell>
       <TableCell>{parseFloat(kwdata.cpc).toFixed(2) || "-"}</TableCell>
       <TableCell>{kwdata.ppc || "-"}</TableCell>
-      <TableCell>
-        {kwdata.score * kwdata.df >= kwdata.qs.q2 ? "✔" : ""}
-      </TableCell>
-      <TableCell>
-        {kwdata.score * kwdata.df < kwdata.qs.q2 &&
-        kwdata.score * kwdata.df >= kwdata.qs.q3
-          ? "✔"
-          : ""}
-      </TableCell>
-      <TableCell>
-        {kwdata.score * kwdata.df < kwdata.qs.q3 &&
-        kwdata.score * kwdata.df >= kwdata.qs.q4
-          ? "✔"
-          : ""}
-      </TableCell>
-      <TableCell>
-        {kwdata.score * kwdata.df < kwdata.qs.q4 ? "✔" : ""}
-      </TableCell>
+      <TableCell>{kwdata.level === "low" ? "✔" : ""}</TableCell>
+      <TableCell>{kwdata.level === "medium" ? "✔" : ""}</TableCell>
+      <TableCell>{kwdata.level === "high" ? "✔" : ""}</TableCell>
+      <TableCell>{kwdata.level === "others" ? "✔" : ""}</TableCell>
       <TableCell>{kwdata.path || ""}</TableCell>
       <TableCell style={{ maxWidth: "40px" }}>
         <IconButton

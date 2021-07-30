@@ -72,38 +72,14 @@ const ResultsTable = () => {
    * Categorize keywords
    */
 
-  const [lowData, setLowData] = useState({});
-  const [mediumData, setMediumData] = useState({});
-  const [highData, setHighData] = useState({});
-  const [othersData, setOthersData] = useState({});
-  useEffect(() => {
-    let low = {};
-    let medium = {};
-    let high = {};
-    let others = {};
-    for (let [kw, kwdata] of Object.entries(keywordsData)) {
-      if (kwdata.score * kwdata.df >= kwdata.qs.q2) {
-        low[kw] = kwdata;
-      } else if (
-        kwdata.score * kwdata.df < kwdata.qs.q2 &&
-        kwdata.score * kwdata.df >= kwdata.qs.q3
-      ) {
-        medium[kw] = kwdata;
-      } else if (
-        kwdata.score * kwdata.df < kwdata.qs.q3 &&
-        kwdata.score * kwdata.df >= kwdata.qs.q4
-      ) {
-        high[kw] = kwdata;
-      } else {
-        others[kw] = kwdata;
-      }
-    }
-
-    setLowData(low);
-    setMediumData(medium);
-    setHighData(high);
-    setOthersData(others);
-  }, [keywordsData]);
+  const filterByCategory = (data, category) => {
+    return Object.entries(data)
+      .filter((kwdata) => kwdata[1].level === category)
+      .reduce((obj, curr) => {
+        obj[curr[0]] = curr[1];
+        return obj;
+      }, {});
+  };
 
   const onSubmit = async ({ keyword }) => {
     setValue("keyword", "");
@@ -154,35 +130,35 @@ const ResultsTable = () => {
         <TableBody>
           {!byCategory ? (
             <ResultsTableSection
-              data={_.merge(lowData, mediumData, highData, othersData)}
+              data={keywordsData}
               orderBy={orderBy}
               order={order}
             />
           ) : (
             <>
               <ResultsTableSection
+                order={order}
+                orderBy={orderBy}
                 subheader="Low"
-                data={lowData}
-                orderBy={orderBy}
-                order={order}
+                data={filterByCategory(keywordsData, "low")}
               />
               <ResultsTableSection
+                order={order}
+                orderBy={orderBy}
                 subheader="Medium"
-                data={mediumData}
-                orderBy={orderBy}
-                order={order}
+                data={filterByCategory(keywordsData, "medium")}
               />
               <ResultsTableSection
+                order={order}
+                orderBy={orderBy}
                 subheader="High"
-                data={highData}
-                orderBy={orderBy}
-                order={order}
+                data={filterByCategory(keywordsData, "high")}
               />
               <ResultsTableSection
-                subheader="Others"
-                data={othersData}
-                orderBy={orderBy}
                 order={order}
+                orderBy={orderBy}
+                subheader="Others"
+                data={filterByCategory(keywordsData, "others")}
               />
             </>
           )}
@@ -207,7 +183,11 @@ const ResultsTable = () => {
             <FormHelperText>Add More Keywords (enter to submit)</FormHelperText>
           </FormControl>
         </form>
-        <SummaryCards low={lowData} medium={mediumData} high={highData} />
+        <SummaryCards
+          low={filterByCategory(keywordsData, "low")}
+          medium={filterByCategory(keywordsData, "medium")}
+          high={filterByCategory(keywordsData, "high")}
+        />
         <Button
           id="export-button"
           color="primary"

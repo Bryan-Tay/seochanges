@@ -246,6 +246,15 @@ const getPageInfo = async (url, keyword, location) => {
   };
 };
 
+const calculateLevel = (pageInfo, relevantPageInfo) => {
+  const { score } = relevantPageInfo;
+  const { df, qs } = pageInfo;
+  if (score * df >= qs.q2) return "low";
+  if (score * df >= qs.q3) return "medium";
+  if (score * df >= qs.q4) return "high";
+  return "others";
+};
+
 /**
  * Collect relevant page info, related keyword and page info for a given url, keyword and location
  * @param {string} url
@@ -257,12 +266,14 @@ export const getKeywordData = async (url, keyword, location) => {
   const relevantPageInfo = await getRelevantPageInfo(url, keyword, location);
   const relatedKeywords = await getRelatedKeywords(url, keyword, location);
   const pageInfo = await getPageInfo(url, keyword, location);
+  const level = calculateLevel(pageInfo, relevantPageInfo);
 
   return {
     ...relevantPageInfo,
     ...relatedKeywords,
     ...pageInfo,
     kw: keyword,
+    level,
   };
 };
 

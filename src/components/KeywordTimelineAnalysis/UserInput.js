@@ -19,7 +19,7 @@ const UserInput = () => {
     defaultValues: {
       url: "https://mediaonemarketing.com.sg/",
       location: "Singapore",
-      keywords: "digital marketing, marketing online, seo singapore",
+      keywords: "digital marketing, marketing online, seo singapore, social media",
     },
   });
 
