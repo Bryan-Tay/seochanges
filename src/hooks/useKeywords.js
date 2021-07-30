@@ -33,6 +33,7 @@ const KeywordsProvider = ({ children }) => {
 
         if (
           cachedKw &&
+          cachedKw.level &&
           cachedKw.expirationDate &&
           new Date().getTime() < cachedKw.expirationDate
         ) {

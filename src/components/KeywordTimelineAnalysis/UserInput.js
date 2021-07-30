@@ -15,16 +15,17 @@ import { useKeywords } from "../../hooks/useKeywords";
 
 const UserInput = () => {
   const { submitForm } = useKeywords();
-  const { control, handleSubmit } = useForm({
-    defaultValues: {
-      url: "https://mediaonemarketing.com.sg/",
-      location: "Singapore",
-      keywords: "digital marketing, marketing online, seo singapore, social media",
-    },
-  });
+  const { control, handleSubmit, setValue } = useForm();
+
+  const onSubmit = (formData) => {
+    submitForm(formData);
+    setValue('url', '');
+    setValue('location', '');
+    setValue('keywords', '');
+  };
 
   return (
-    <form onSubmit={handleSubmit(submitForm)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <FormControl fullWidth margin="normal">
         <Controller
           name="url"
