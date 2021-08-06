@@ -1,16 +1,19 @@
 import _ from "lodash";
-import axios from "axios";
 
-// Create axios client with default base url and token
-const mangoolsWrapper = axios;
-mangoolsWrapper.defaults.baseURL = process.env.REACT_APP_KWAPI;
-mangoolsWrapper.defaults.headers = {
-  "x-access-token": process.env.REACT_APP_KEY,
+const base_uri = process.env.REACT_APP_KWAPI;
+const x_access_token = process.env.REACT_APP_KEY;
+const req_options = {
+  headers: {
+    "x-access-token": x_access_token,
+  },
 };
 
-const mangools = mangoolsWrapper.create();
+const mangoolsFetch = async (path) => {
+  const response = await fetch(`${base_uri}${path}`, req_options);
+  const data = await response.json();
+  return { data };
+};
 
-// Coefficients // Currently disabled
 const PDA = 0.5;
 const UPA = 0.3;
 const CF = 0.05;
@@ -161,7 +164,7 @@ const getRanking = (items, url, kw, df, offset) => {
  * @returns
  */
 const getRelatedKeywords = async (url, keyword, location) => {
-  const relatedKeywords = await mangools.get(
+  const relatedKeywords = await mangoolsFetch(
     `/related-keywords?kw=${keyword}&location_id=${location}`
   );
 
@@ -181,7 +184,7 @@ const getRelatedKeywords = async (url, keyword, location) => {
  * @returns
  */
 const getRelevantPageInfo = async (url, keyword, location) => {
-  const relevantPage = await mangools.get(
+  const relevantPage = await mangoolsFetch(
     `/serps?location_id=${location}&kw=${url + " " + keyword}`
   );
 
@@ -208,7 +211,7 @@ const getPageInfo = async (url, keyword, location) => {
   for (let i = 0; i < dfs.length; i++) {
     let pageQuery = i > 0 ? `&page=${i}` : "";
     if (rank === false) {
-      response = await mangools.get(apiUrl + pageQuery);
+      response = await mangoolsFetch(apiUrl + pageQuery);
       rank = getRanking(
         response.data[0].items,
         url,
@@ -222,7 +225,7 @@ const getPageInfo = async (url, keyword, location) => {
           : items;
       scores = getPageScores(response);
     } else if (i < 2) {
-      response = await mangools.get(apiUrl + pageQuery);
+      response = await mangoolsFetch(apiUrl + pageQuery);
       scores = getPageScores(response);
     } else {
       break;
@@ -263,18 +266,21 @@ const calculateLevel = (pageInfo, relevantPageInfo) => {
  * @returns
  */
 export const getKeywordData = async (url, keyword, location) => {
-  const relevantPageInfo = await getRelevantPageInfo(url, keyword, location);
-  const relatedKeywords = await getRelatedKeywords(url, keyword, location);
-  const pageInfo = await getPageInfo(url, keyword, location);
-  const level = calculateLevel(pageInfo, relevantPageInfo);
-
-  return {
-    ...relevantPageInfo,
-    ...relatedKeywords,
-    ...pageInfo,
-    kw: keyword,
-    level,
-  };
+  try {
+    const relevantPageInfo = await getRelevantPageInfo(url, keyword, location);
+    const relatedKeywords = await getRelatedKeywords(url, keyword, location);
+    const pageInfo = await getPageInfo(url, keyword, location);
+    const level = calculateLevel(pageInfo, relevantPageInfo);
+  
+    return {
+      ...relevantPageInfo,
+      ...relatedKeywords,
+      ...pageInfo,
+      kw: keyword,
+      level,
+    };
+  } catch (err) {
+    console.log(err);
+    return {};
+  }
 };
-
-export default mangools;
