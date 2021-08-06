@@ -59,22 +59,6 @@ const ResultPanel = ({ data }) => {
           {data.description}
         </Typography>
       </Grid>
-      <Grid item xs={4} classnames={styles.gridItem}>
-        <Typography classnames={styles.itemTitle}>All words</Typography>
-      </Grid>
-      <Grid item xs={8} classnames={styles.gridItem}>
-        <Typography classnames={styles.itemValue}>
-          {data.numberOfWords}
-        </Typography>
-      </Grid>
-      <Grid item xs={4} classnames={styles.gridItem}>
-        <Typography classnames={styles.itemTitle}>Unique words</Typography>
-      </Grid>
-      <Grid item xs={8} classnames={styles.gridItem}>
-        <Typography classnames={styles.itemValue}>
-          {data.numberOfUniqueWords}
-        </Typography>
-      </Grid>
       <Grid item xs={12} style={{ marginTop: "2rem" }}>
         <FormControl>
           <InputLabel id="top-select-label">
